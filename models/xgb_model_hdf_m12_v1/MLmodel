@@ -1,0 +1,20 @@
+artifact_path: xgb_model_hdf_m12
+flavors:
+  python_function:
+    data: model.xgb
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.xgboost
+    python_version: 3.12.9
+  xgboost:
+    code: null
+    data: model.xgb
+    model_class: xgboost.sklearn.XGBRegressor
+    model_format: xgb
+    xgb_version: 2.0.3
+mlflow_version: 2.20.2
+model_size_bytes: 81300
+model_uuid: 39423fb3f6494fdaa8e0d6f4ce65d453
+run_id: 7fc0c9f4247d491c9a8a167437cc0a39
+utc_time_created: '2025-03-27 15:18:27.789389'

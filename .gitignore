@@ -1,0 +1,10 @@
+# === Ignore large datasets ===
+data/eco2mix-regional-cons-def.csv
+data/eco2mix-regional-tr.csv
+data/merged_full.csv
+
+# === Ignore all notebooks ===
+notebooks/
+
+# === Ignore "OLD" folder ===
+OLD/
