@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import root_mean_squared_error, mean_absolute_error, r2_score
 import unicodedata
 
+
 def prepare_pipeline_inputs(region: str, chosen_day_str: str, model: str, run_time: str):
     
     # Parse chosen day as datetime
@@ -166,86 +167,118 @@ def create_prediction_output_folder(region_abbr_caps, target_day, run_time_str):
 
 
 def evaluate_all_predictions(region_abbr_caps, region_abbr_lwrc, chosen_day, run_time_str, func_region):
-    """
-    Concatenates prediction CSVs for a given run_time, evaluates them against real values,
-    saves the concatenated prediction, and optionally plots/saves the plot.
-    """
-    # Folder setup
-    date_str = str(chosen_day.strftime("%Y-%m-%d"))
+    date_str = chosen_day.strftime("%Y-%m-%d")
     base_dir = "Predictions"
     run_time_folder = os.path.join(base_dir, region_abbr_caps, date_str, str(run_time_str))
-    
 
-    # Get all CSV files in the run_time folder
+    # Gather CSV files
     prediction_files = [
         os.path.join(run_time_folder, f)
         for f in os.listdir(run_time_folder)
-        if f.endswith(".csv")
+        if f.endswith(".csv") and "all_models" not in f  # Avoid reloading concatenated full-day prediction
     ]
-
 
     if not prediction_files:
         print("⚠️ No prediction files found for this run time.")
         return
 
-    # Concatenate predictions
-    dfs = [pd.read_csv(f, parse_dates=["Datetime"]) for f in prediction_files]
-    df_pred = pd.concat(dfs).sort_values("Datetime")
-
-    # Save concatenated predictions
-    concat_filename = f"pred_cons_{region_abbr_lwrc}_all_models_{run_time_str}D0_{chosen_day.strftime('%m-%d')}.csv"
-    concat_path = os.path.join(run_time_folder, concat_filename)
-    df_pred.rename(columns={"Predicted_Consumption": "y_pred"}, inplace=True)
-    df_pred.to_csv(concat_path, index=False)
-    print(f"✅ Concatenated prediction saved to: {concat_path}")
-
-    # Load real values for each model
-    df_real = pd.read_csv(r"C:\Users\Henri\Documents\GitHub\Predi_Conso_Elec_Region\Predi_Conso_Elec_Region\data\cons_temp_2025.csv", parse_dates=['Datetime'])
-
-    # Normalize func_region to match data encoding
+    df_real = pd.read_csv(
+        r"C:\\Users\\Henri\\Documents\\GitHub\\Predi_Conso_Elec_Region\\data\\cons_temp_2025.csv",
+        parse_dates=['Datetime']
+    )
     normalized_region = unicodedata.normalize("NFKD", func_region)
-    
-    # Ensure chosen_day is a date object
-    if hasattr(chosen_day, 'date'):
-        chosen_day = chosen_day.date()
-
-    # Filter using normalized region and date
     df_real = df_real[
-        (df_real["Région"].apply(lambda x: unicodedata.normalize("NFKD", x)) == normalized_region) &
-        (df_real["Datetime"].dt.date == chosen_day)
+        (df_real["Région"].apply(lambda x: unicodedata.normalize("NFKD", x)) == normalized_region)
     ].copy()
     df_real.rename(columns={"Consommation (MW)": "y_real"}, inplace=True)
 
-    if df_real.empty:
-        print(f"⚠️ No real data found for {normalized_region} on {chosen_day}.")
-        return
+    metrics = []
+    full_day_df = []
+
+    for file in prediction_files:
+        df_pred = pd.read_csv(file, parse_dates=["Datetime"])
+        
+        filename = os.path.basename(file)
+        parts = filename.split("_")
+
+        try:
+            model_name = parts[3]  # "M36", "M18", etc.
+        except IndexError:
+            print(f"⚠️ Could not parse model name from filename: {filename}")
+            continue
 
 
-    # Merge predictions with real data
-    df_eval = pd.merge(df_pred, df_real, on="Datetime", suffixes=("_pred", "_real"))
+        # Prepare model-specific time window
 
-    # Evaluate
-    mae = mean_absolute_error(df_eval["y_real"], df_eval["y_pred"])
-    rmse = root_mean_squared_error(df_eval["y_real"], df_eval["y_pred"])
-    r2 = r2_score(df_eval["y_real"], df_eval["y_pred"])
+        # Normalize run_time_str from "2" to "02:00:00"
+        normalized_run_time = f"{int(run_time_str):02d}:00:00"
 
-    print(f"\n📊 Evaluation Metrics for {region_abbr_caps} | {chosen_day} | {run_time_str} Run:")
-    print(f"MAE: {mae:.2f} | RMSE: {rmse:.2f} | R²: {r2:.2f}")
+        inputs = prepare_pipeline_inputs(func_region, chosen_day.strftime("%Y-%m-%d"), model_name.upper(), normalized_run_time)
+        start = inputs["first_row"]
+        end = inputs["last_row"]
 
-    # Plot
+        # Filter real
+        df_real_window = df_real[(df_real['Datetime'] >= start) & (df_real['Datetime'] <= end)].copy()
+
+        if df_real_window.empty:
+            print(f"⚠️ No real data found for {model_name.upper()} timeframe.")
+            continue
+
+        df_pred.rename(columns={"Predicted_Consumption": "y_pred"}, inplace=True)
+        df_eval = pd.merge(df_pred, df_real_window, on="Datetime", suffixes=("_pred", "_real"))
+
+        mae = mean_absolute_error(df_eval["y_real"], df_eval["y_pred"])
+        rmse = root_mean_squared_error(df_eval["y_real"], df_eval["y_pred"])
+        r2 = r2_score(df_eval["y_real"], df_eval["y_pred"])
+        mean_consumption = df_eval["y_real"].mean()
+
+        metrics.append({
+            "Model": model_name.upper(),
+            "MAE": mae,
+            "RMSE": rmse,
+            "R2": r2,
+            "MAE / Mean": mae / mean_consumption,
+            "RMSE / Mean": rmse / mean_consumption
+        })
+
+        full_day_df.append(df_pred)
+
+    # Full day concatenation
+    df_pred_full = pd.concat(full_day_df).sort_values("Datetime")
+    df_real_day = df_real[df_real['Datetime'].dt.date == chosen_day.date()].copy()
+    df_eval_full = pd.merge(df_pred_full, df_real_day, on="Datetime")
+
+    mae = mean_absolute_error(df_eval_full["y_real"], df_eval_full["y_pred"])
+    rmse = root_mean_squared_error(df_eval_full["y_real"], df_eval_full["y_pred"])
+    r2 = r2_score(df_eval_full["y_real"], df_eval_full["y_pred"])
+    mean_consumption = df_eval_full["y_real"].mean()
+
+    metrics.append({
+        "Model": "ALL_MODELS",
+        "MAE": mae,
+        "RMSE": rmse,
+        "R2": r2,
+        "MAE / Mean": mae / mean_consumption,
+        "RMSE / Mean": rmse / mean_consumption
+    })
+
+    # Save metrics
+    metrics_df = pd.DataFrame(metrics)
+    metrics_path = os.path.join(run_time_folder, f"evaluation_metrics_{region_abbr_lwrc}_{date_str}_{run_time_str}.csv")
+    metrics_df.to_csv(metrics_path, index=False)
+    print(f"📊 Metrics saved to: {metrics_path}")
+
+    # Plot full-day only
     plt.figure(figsize=(12, 5))
-    plt.plot(df_eval["Datetime"], df_eval["y_real"], label="Real", linewidth=2)
-    plt.plot(df_eval["Datetime"], df_eval["y_pred"], label="Predicted", linestyle="--")
+    plt.plot(df_eval_full["Datetime"], df_eval_full["y_real"], label="Real", linewidth=2)
+    plt.plot(df_eval_full["Datetime"], df_eval_full["y_pred"], label="Predicted", linestyle="--")
     plt.title(f"{region_abbr_caps} - {chosen_day} - {run_time_str} D0 Run\nPredicted vs Real Consumption")
     plt.xlabel("Time")
     plt.ylabel("MW")
     plt.legend()
     plt.tight_layout()
 
-    # Save the plot
     plot_path = os.path.join(run_time_folder, f"prediction_plot_{region_abbr_lwrc}_{run_time_str}.png")
     plt.savefig(plot_path)
     print(f"📈 Plot saved to: {plot_path}")
 
-    # If running from terminal or script, comment this out
-    # plt.show()
