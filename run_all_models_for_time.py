@@ -23,7 +23,7 @@ if __name__ == "__main__":
     models_to_run = models_by_run_time[func_run_time]
 
     for func_model in models_to_run:
-        print(f"Running {func_model} model...")
+        print(f"⌛ Running {func_model} model...")
         run_pipeline_for_model(
             region=func_region,
             target_day=func_target_day,

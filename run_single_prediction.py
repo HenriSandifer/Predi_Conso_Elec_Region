@@ -45,7 +45,7 @@ def run_pipeline_for_model(region, target_day, run_time, model):
     # Save predictions to CSV
     # Evaluate and log metrics with MLflow
 
-    cons_temp_df = pd.read_csv(r"C:\Users\Henri\Documents\GitHub\Predi_Conso_Elec_Region\Predi_Conso_Elec_Region\data\cons_temp_2025.csv", parse_dates=['Datetime'])
+    cons_temp_df = pd.read_csv(r"C:\Users\Henri\Documents\GitHub\Predi_Conso_Elec_Region\data\cons_temp_2025.csv", parse_dates=['Datetime'])
 
     import unicodedata
 
@@ -169,7 +169,7 @@ def run_pipeline_for_model(region, target_day, run_time, model):
         columns=poly.get_feature_names_out(input_features=all_features),
         index=X_mixed_test.index
     )
-    base_model_dir = "C:/Users/Henri/Documents/GitHub/Predi_Conso_Elec_Region/Predi_Conso_Elec_Region/models"
+    base_model_dir = "C:/Users/Henri/Documents/GitHub/Predi_Conso_Elec_Region/models"
     
     model_version = "1"
     model_path = os.path.join(base_model_dir, f"xgb_model_{region_lwrc}_{func_model.lower()}_v1")
