@@ -10,7 +10,7 @@ def run_all_for_day(func_region, func_target_day):
         print(f"🚀 Running predictions for {func_region} on {func_target_day} at {run_time}")
         run_all_models_for_time(func_region, func_target_day, run_time)
 
-    print(f"✅ Finished full day prediction for {func_target_day} in {func_region}.")
+    print(f"☑️ Finished full day prediction for {func_target_day} in {func_region}.")
 
 
 if __name__ == "__main__":

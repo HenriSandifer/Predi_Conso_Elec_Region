@@ -7,7 +7,11 @@ import os
 import mlflow
 from vacances_scolaires_france import SchoolHolidayDates
 
-from utils import prepare_pipeline_inputs, add_holiday_column, apply_lag_roll_features, create_prediction_output_folder  # etc.
+from utils import (prepare_pipeline_inputs,
+                   add_holiday_column,
+                   apply_lag_roll_features,
+                   create_prediction_output_folder,
+)
 import pandas as pd
 
 def run_pipeline_for_model(region, target_day, run_time, model):
@@ -16,6 +20,7 @@ def run_pipeline_for_model(region, target_day, run_time, model):
 
     output_folder = create_prediction_output_folder(
     region_abbr_caps=inputs["region_caps"],
+    target_month=inputs["chosen_day"].strftime("%Y-%m"),
     target_day=inputs["chosen_day"],
     run_time_str=inputs["run_time_abbr"]
     )
