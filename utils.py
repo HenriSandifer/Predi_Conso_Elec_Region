@@ -151,25 +151,25 @@ def apply_lag_roll_features(df_test, cons_temp_df, inputs):
     return df_test
 
 
-def create_prediction_output_folder(region_abbr_caps, target_day, run_time_str):
+def create_prediction_output_folder(region_abbr_caps, target_month, target_day, run_time_str):
     """
-    Creates a folder structure: Predictions/REGION/YYYY-MM-DD/HH:MM/
+    Creates a folder structure: Predictions/REGION/Month/YYYY-MM-DD/HH:MM/
     Returns the full path to the run_time folder.
     """
     base_dir = "Predictions"
     date_folder = target_day.strftime("%Y-%m-%d")  # e.g., 2025-03-12
-
     run_time_folder = str(run_time_str)  # e.g., "02:00"
-    full_path = os.path.join(base_dir, region_abbr_caps, date_folder, run_time_folder)
+    month_folder = str(target_month)
+    full_path = os.path.join(base_dir, region_abbr_caps, month_folder, date_folder, run_time_folder)
 
     os.makedirs(full_path, exist_ok=True)
     return full_path
 
 
-def evaluate_all_predictions(region_abbr_caps, region_abbr_lwrc, chosen_day, run_time_str, func_region):
+def evaluate_all_predictions(region_abbr_caps, region_abbr_lwrc, target_month, chosen_day, run_time_str, func_region):
     date_str = chosen_day.strftime("%Y-%m-%d")
     base_dir = "Predictions"
-    run_time_folder = os.path.join(base_dir, region_abbr_caps, date_str, str(run_time_str))
+    run_time_folder = os.path.join(base_dir, region_abbr_caps, str(target_month), date_str, str(run_time_str))
 
     # Gather CSV files
     prediction_files = [

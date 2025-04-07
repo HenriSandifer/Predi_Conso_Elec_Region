@@ -1,11 +1,12 @@
 import os
 import pandas as pd
+import calendar
 from datetime import datetime
 import argparse
 from dictionaries import region_abbr_caps_dict, region_abbr_dict
 
-def aggregate_all_metrics(region_abbr_caps, region_abbr_lwrc):
-    base_dir = os.path.join("Predictions", region_abbr_caps)
+def aggregate_all_metrics(region_abbr_caps, target_month, region_abbr_lwrc):
+    base_dir = os.path.join("Predictions", region_abbr_caps, target_month)
     all_metrics = []
 
     # Loop through each date folder (e.g. 2025-03-01)
@@ -42,16 +43,20 @@ def aggregate_all_metrics(region_abbr_caps, region_abbr_lwrc):
     ordered_cols = ["Date", "Run_time", "Model", "MAE", "RMSE", "R2", "MAE / Mean", "RMSE / Mean"]
     full_df = full_df[ordered_cols]
 
-    output_path = os.path.join("Predictions", region_abbr_caps, f"metrics_master_{region_abbr_lwrc}.csv")
+    output_path = os.path.join("Predictions", region_abbr_caps, target_month, f"metrics_master_{target_month}_{region_abbr_lwrc}.csv")
     full_df.to_csv(output_path, index=False)
     print(f"✅ Master metrics file saved to: {output_path}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Aggregate all metrics for a given region.")
     parser.add_argument("--region", type=str, required=True, help="Region name (e.g., 'Île-de-France')")
+    parser.add_argument("--month", type=str, required=True, help="Year-Month (e.g., '2025-02')")
     args = parser.parse_args()
 
     region_abbr_lwrc = region_abbr_dict[args.region]
     region_abbr_caps = region_abbr_caps_dict[args.region]
+    target_month = args.month
 
-    aggregate_all_metrics(region_abbr_caps, region_abbr_lwrc)
+    aggregate_all_metrics(region_abbr_caps, target_month, region_abbr_lwrc)
+
+    

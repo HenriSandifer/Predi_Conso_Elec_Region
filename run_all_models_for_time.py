@@ -31,6 +31,7 @@ def run_all_models_for_time(func_region, func_target_day, func_run_time):
         region_abbr_caps=region_abbr_caps_dict[func_region],
         region_abbr_lwrc=region_abbr_dict[func_region],
         chosen_day=pd.to_datetime(func_target_day),
+        target_month=pd.to_datetime(func_target_day).strftime("%Y-%m"),
         run_time_str=run_time_dict[func_run_time],
         func_region=func_region
     )
