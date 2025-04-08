@@ -182,3 +182,82 @@ weather_stations = {
 }
 
 
+weather_coordinates = {
+    "Auvergne-Rhône-Alpes": [
+        {"city": "Lyon", "latitude": 45.764043, "longitude": 4.835659},
+        {"city": "Saint-Étienne", "latitude": 45.439695, "longitude": 4.387178},
+        {"city": "Grenoble", "latitude": 45.188529, "longitude": 5.724524},
+        {"city": "Clermont-Ferrand", "latitude": 45.777222, "longitude": 3.087025}
+    ],
+    "Bourgogne-Franche-Comté": [
+        {"city": "Dijon", "latitude": 47.322047, "longitude": 5.04148},
+        {"city": "Besançon", "latitude": 47.237829, "longitude": 6.024053},
+        {"city": "Belfort", "latitude": 47.639674, "longitude": 6.863849},
+        {"city": "Chalon-sur-Saône", "latitude": 46.782972, "longitude": 4.852051}
+    ],
+    "Brittany": [
+        {"city": "Rennes", "latitude": 48.117266, "longitude": -1.677793},
+        {"city": "Brest", "latitude": 48.390394, "longitude": -4.486076},
+        {"city": "Quimper", "latitude": 47.996092, "longitude": -4.102201},
+        {"city": "Lorient", "latitude": 47.748252, "longitude": -3.370244}
+    ],
+    "Centre-Val de Loire": [
+        {"city": "Orléans", "latitude": 47.902964, "longitude": 1.909251},
+        {"city": "Tours", "latitude": 47.394144, "longitude": 0.68484},
+        {"city": "Bourges", "latitude": 47.081012, "longitude": 2.398782},
+        {"city": "Chartres", "latitude": 48.443892, "longitude": 1.489013}
+    ],
+    "Corsica": [
+        {"city": "Ajaccio", "latitude": 41.919229, "longitude": 8.738635},
+        {"city": "Bastia", "latitude": 42.697283, "longitude": 9.450881},
+        {"city": "Corte", "latitude": 42.306382, "longitude": 9.150099},
+        {"city": "Porto-Vecchio", "latitude": 41.591368, "longitude": 9.279493}
+    ],
+    "Grand Est": [
+        {"city": "Strasbourg", "latitude": 48.573405, "longitude": 7.752111},
+        {"city": "Reims", "latitude": 49.258329, "longitude": 4.031696},
+        {"city": "Metz", "latitude": 49.119308, "longitude": 6.175716},
+        {"city": "Nancy", "latitude": 48.692054, "longitude": 6.184417}
+    ],
+    "Hauts-de-France": [
+        {"city": "Lille", "latitude": 50.62925, "longitude": 3.057256},
+        {"city": "Amiens", "latitude": 49.894067, "longitude": 2.295753},
+        {"city": "Roubaix", "latitude": 50.69421, "longitude": 3.17456},
+        {"city": "Dunkerque", "latitude": 51.034368, "longitude": 2.376776}
+    ],
+    "Île-de-France": [
+        {"city": "Paris", "latitude": 48.856613, "longitude": 2.352222},
+        {"city": "Boulogne-Billancourt", "latitude": 48.835537, "longitude": 2.241843},
+        {"city": "Saint-Denis", "latitude": 48.936181, "longitude": 2.357443},
+        {"city": "Argenteuil", "latitude": 48.947209, "longitude": 2.246684}
+    ],
+    "Normandy": [
+        {"city": "Rouen", "latitude": 49.443232, "longitude": 1.099971},
+        {"city": "Caen", "latitude": 49.182863, "longitude": -0.370679},
+        {"city": "Le Havre", "latitude": 49.49437, "longitude": 0.107929},
+        {"city": "Cherbourg", "latitude": 49.633731, "longitude": -1.622137}
+    ],
+    "Nouvelle-Aquitaine": [
+        {"city": "Bordeaux", "latitude": 44.837789, "longitude": -0.57918},
+        {"city": "Limoges", "latitude": 45.833619, "longitude": 1.261105},
+        {"city": "Poitiers", "latitude": 46.580224, "longitude": 0.340375},
+        {"city": "Pau", "latitude": 43.2951, "longitude": -0.370797}
+    ],
+    "Occitanie": [
+        {"city": "Toulouse", "latitude": 43.604652, "longitude": 1.444209},
+        {"city": "Montpellier", "latitude": 43.610769, "longitude": 3.876716},
+        {"city": "Nîmes", "latitude": 43.836699, "longitude": 4.360054},
+        {"city": "Perpignan", "latitude": 42.688659, "longitude": 2.894833}
+    ],
+    "Pays de la Loire": [
+        {"city": "Nantes", "latitude": 47.218371, "longitude": -1.553621},
+        {"city": "Angers", "latitude": 47.478419, "longitude": -0.563166},
+        {"city": "Le Mans", "latitude": 48.00611, "longitude": 0.199556},
+        {"city": "Saint-Nazaire", "latitude": 47.273498, "longitude": -2.213848}
+    ],
+    "Provence-Alpes-Côte d'Azur": [
+        {"city": "Marseille", "latitude": 43.296482, "longitude": 5.36978},
+        {"city": "Nice", "latitude": 43.710173, "longitude": 7.261953},
+        {"city": "Toulon", "latitude": 43.124228, "longitude": 5.928},
+        {"city": "Avignon", "latitude": 43.949317, "longitude": 4.805528}
+]}
