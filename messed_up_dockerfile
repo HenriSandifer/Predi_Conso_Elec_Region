@@ -1,0 +1,17 @@
+FROM python:3.13-slim
+
+# Set work directory
+WORKDIR /app/SRC_for_docker/src
+
+# Install dependencies
+COPY requirements.txt /app/SRC_for_docker/src
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Set Python path so it can find src modules
+ENV PYTHONPATH=/app/SRC_for_docker/src
+
+# Copy source code
+COPY SRC_for_docker/src/ /app/SRC_for/src
+
+# Set entrypoint
+CMD ["python", "SRC_for_docker/src/scripts/update_consumption_data.py"]

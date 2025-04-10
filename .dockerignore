@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.ipynb
+*.json
+.git/
+data/
+tests/
+notebooks/
+OLD/
+Pipelines/
+Predictions_archive/
