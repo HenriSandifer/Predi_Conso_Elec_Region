@@ -1,8 +1,7 @@
 import pandas as pd
-from vacances_scolaires_france import SchoolHolidayDates
-import pandas as pd
 import os
-import matplotlib.pyplot as plt
+import plotly.express as px
+import plotly.io as pio
 
 def plot_pred_only(region_abbr_caps, region_abbr_lwrc, target_month, chosen_day, run_time_str):
     
@@ -32,15 +31,22 @@ def plot_pred_only(region_abbr_caps, region_abbr_lwrc, target_month, chosen_day,
     df_pred_full = pd.read_csv(pred_path, parse_dates="Datetime") 
     
 
-    # Plot D+1 (Pred only) full-day for run_time
-    plt.figure(figsize=(12, 5))
-    plt.plot(df_pred_full["Datetime"], df_pred_full["y_pred"], label="Predicted", linewidth=2)
-    plt.title(f"{region_abbr_caps} - {chosen_day} - {run_time_str} D0 Run\nPredicted Consumption")
-    plt.xlabel("Time")
-    plt.ylabel("MW")
-    plt.legend()
-    plt.tight_layout()
+    # Plot using Plotly
+    fig = px.line(
+        df_pred_full,
+        x="Datetime",
+        y="y_pred",
+        title=f"{region_abbr_caps} - {chosen_day.strftime('%Y-%m-%d')} - {run_time_str} D0 Run<br>Predicted Consumption (MW)",
+        labels={"Datetime": "Time", "y_pred": "Predicted Consumption (MW)"}
+    )
 
-    plot_path = os.path.join(run_time_folder, f"pred_plot_{region_abbr_lwrc}_{run_time_str}.png")
-    plt.savefig(plot_path)
-    print(f"📈 Plot saved to: {plot_path}")
+    fig.update_layout(
+        width=900,
+        height=400,
+        margin=dict(l=50, r=50, t=60, b=40),
+    )
+
+    # Save to interactive .json format
+    plot_path = os.path.join(run_time_folder, f"pred_plot_{region_abbr_lwrc}_{run_time_str}.json")
+    pio.write_json(fig, plot_path)
+    print(f"📈 Interactive plot saved to: {plot_path}")

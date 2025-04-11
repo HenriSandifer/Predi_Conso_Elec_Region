@@ -1,10 +1,9 @@
-from src.plotting.func_plot_pred_only import plot_pred_only
 from src.plotting.func_plot_pred_and_eval import plot_pred_and_eval
 from utils.dictionaries import (
     region_abbr_caps_dict,
     region_abbr_dict,
-    run_time_dict,
-)
+    run_time_dict)
+
 import pandas as pd
 import argparse
 
@@ -12,12 +11,10 @@ import argparse
 def run_plotting(region, chosen_day, run_time):
     """
     Plots the prediction made at any run time 
-    against real data for that day
+    against the target day's real data
 
     """
       
-    # Evaluate the full-day concatenated predictions
-
     plot_pred_and_eval(
         region,
         region_abbr_caps=region_abbr_caps_dict[region],

@@ -1,24 +1,12 @@
 import pandas as pd
-from utils.dictionaries import (weather_stations, region_abbr_dict,
-                                 region_abbr_caps_dict, run_time_dict,
-                                   model_delta, holiday_zones,
-                                     prediction_timeframes,
-                                       models_by_run_time,
-                                         lag_roll_features_by_model,
-                                           lag_feature_multipliers_by_model,
-                                             roll_feature_multipliers)
-from vacances_scolaires_france import SchoolHolidayDates
-import pandas as pd
 import os
-import matplotlib.pyplot as plt
-from sklearn.metrics import (root_mean_squared_error,
-                             mean_absolute_error, r2_score)
-import unicodedata
+import plotly.express as px
+import plotly.io as pio
 
 def plot_pred_and_eval(region_abbr_caps, region_abbr_lwrc, target_month, chosen_day, run_time_str):
     
     """
-    Generate plot for D-1 Prediction + Evaluation
+    Generate plot for D+1 Prediction + Real Data
     
     """
     
@@ -57,24 +45,27 @@ def plot_pred_and_eval(region_abbr_caps, region_abbr_lwrc, target_month, chosen_
         merged_df = df_pred.merge(df_real, on="timestamp")  # or whichever common key
         df_merged[rt] = merged_df
 
+        # Plot with Plotly
+        fig = px.line(
+            merged_df,
+            x="Datetime",
+            y=["y_pred", "y_real"],
+            labels={"value": "MW", "Datetime": "Time", "variable": "Legend"},
+            title=f"{region_abbr_caps} - {date_str} - {rt} D0 Run<br>Prediction vs Real"
+        )
 
-    for rt, df in df_merged.items():
-        plot_df_vs_real(df, run_time=rt)
+        fig.update_traces(line=dict(width=2))
+        fig.update_layout(
+            width=900,
+            height=400,
+            margin=dict(l=50, r=50, t=60, b=40),
+        )
 
-        
-    # Plot D-1 (Pred + Real)
-    plt.figure(figsize=(12, 5))
-    plt.plot(df_merged[rt]["Datetime"], df_merged[rt]["y_real"], label="Real", linewidth=2)
-    plt.plot(df_merged[rt]["Datetime"], df_merged[rt]["y_pred"], label="Predicted", linestyle="--")
-    plt.title(f"{region_abbr_caps} - {chosen_day} - {run_time_str} D0 Run\nPredicted vs Real Consumption")
-    plt.xlabel("Time")
-    plt.ylabel("MW")
-    plt.legend()
-    plt.tight_layout()
+        # Save interactive plot to .json
+        plot_path = os.path.join(run_time_folder, f"pred_and_eval_plot_{region_abbr_lwrc}_{rt}.json")
+        pio.write_json(fig, plot_path)
+        print(f"📈 Interactive plot saved to: {plot_path}")
 
-    plot_path = os.path.join(run_time_folder, f"pred_&_eval_plot_{region_abbr_lwrc}_{run_time_str}.png")
-    plt.savefig(plot_path)
-    print(f"📈 Plot saved to: {plot_path}")
 
     
 

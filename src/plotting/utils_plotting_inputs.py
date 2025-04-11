@@ -2,19 +2,12 @@ import pandas as pd
 from datetime import datetime, timedelta
 from utils.dictionaries import (weather_stations, region_abbr_dict,
                                  region_abbr_caps_dict, run_time_dict,
-                                   model_delta, holiday_zones,
-                                     prediction_timeframes,
-                                       models_by_run_time,
-                                         lag_roll_features_by_model,
-                                           lag_feature_multipliers_by_model,
-                                             roll_feature_multipliers)
-from vacances_scolaires_france import SchoolHolidayDates
+                                   model_delta,
+                                     prediction_timeframes)
+
 import pandas as pd
-import os
-import matplotlib.pyplot as plt
-from sklearn.metrics import (root_mean_squared_error,
-                             mean_absolute_error, r2_score)
-import unicodedata
+
+
 
 def get_plotting_inputs(region: str, chosen_day_input: str, model: str, run_time: str):
 
