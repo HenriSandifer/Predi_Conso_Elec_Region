@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<mxfile host="app.diagrams.net">
+  <diagram name="API Data Collection Pipeline" id="1">
+    <mxGraphModel dx="1000" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="2" value="update_consumption_data.py&#10;(dep: pandas, region_abbr_dict, get_regional_consumption)" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="160" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="3" value="get_consumption_data.py&#10;(dep: pandas, requests, utils.py)" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="300" y="40" width="160" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="4" value="utils.py&#10;(prepare_pipeline_inputs)" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="540" y="40" width="160" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="5" value="all_cons_data.csv&#10;(Output)" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="180" y="140" width="160" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="6" value="update_weather_forecast.py&#10;(dep: pandas, region_abbr_dict, regional_temperature_prediction)" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="260" width="160" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="7" value="get_temperature_forecast.py&#10;(dep: pandas, openmeteo_requests, requests_cache, retry_requests, weather_coordinates)" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="300" y="260" width="160" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="8" value="all_temp_data.csv&#10;(Output)" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="180" y="360" width="160" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" edge="1" parent="1" source="2" target="3">
+          <mxGeometry relative="1" as_="geometry"/>
+        </mxCell>
+        <mxCell id="10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" edge="1" parent="1" source="3" target="4">
+          <mxGeometry relative="1" as_="geometry"/>
+        </mxCell>
+        <mxCell id="11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" edge="1" parent="1" source="2" target="5">
+          <mxGeometry relative="1" as_="geometry"/>
+        </mxCell>
+        <mxCell id="12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" edge="1" parent="1" source="6" target="7">
+          <mxGeometry relative="1" as_="geometry"/>
+        </mxCell>
+        <mxCell id="13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;" edge="1" parent="1" source="6" target="8">
+          <mxGeometry relative="1" as_="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
