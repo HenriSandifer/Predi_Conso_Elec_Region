@@ -1,29 +1,31 @@
-from func_prediction_evaluation import evaluate_all_predictions
-from dictionaries import (
+from src.plotting.func_plot_pred_only import plot_pred_only
+from src.plotting.func_plot_pred_and_eval import plot_pred_and_eval
+from utils.dictionaries import (
     region_abbr_caps_dict,
     region_abbr_dict,
-    run_time_dict)
-
+    run_time_dict,
+)
 import pandas as pd
 import argparse
 
 
-def run_prediction_evaluation(region, chosen_day, run_time):
+def run_plotting(region, chosen_day, run_time):
     """
-    Evaluates the full-day prediction of each run_time
-      once real data is available
+    Plots the prediction made at any run time 
+    against real data for that day
 
     """
       
     # Evaluate the full-day concatenated predictions
-    evaluate_all_predictions(
+
+    plot_pred_and_eval(
         region,
         region_abbr_caps=region_abbr_caps_dict[region],
         region_abbr_lwrc=region_abbr_dict[region],
         chosen_day=pd.to_datetime(chosen_day),    
         target_month=pd.to_datetime(chosen_day).strftime("%Y-%m"),    
         run_time_str=run_time_dict[run_time],    
-        )            
+        )          
 
 if __name__ == "__main__":
 
@@ -35,6 +37,6 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    run_prediction_evaluation(args.region, args.day, args.time)   
+    run_plotting(args.region, args.day, args.time)   
 
 

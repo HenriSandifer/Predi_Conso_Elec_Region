@@ -1,16 +1,16 @@
-from predictions.run_all_models_for_time import run_all_models_for_time
+from prediction.run_all_models_for_time import run_all_models_for_time
 from utils.dictionaries import run_time_dict
 import argparse
 
 
-def run_all_for_day(func_region, func_target_day):
+def run_all_for_day(region, chosen_day):
     
     # === Loop through run times ===
     for run_time in run_time_dict:
-        print(f"🚀 Running predictions for {func_region} on {func_target_day} at {run_time}")
-        run_all_models_for_time(func_region, func_target_day, run_time)
+        print(f"🚀 Running predictions for {region} on {chosen_day} at {run_time}")
+        run_all_models_for_time(region, chosen_day, run_time)
 
-    print(f"☑️ Finished full day prediction for {func_target_day} in {func_region}.")
+    print(f"☑️ Finished full day prediction for {chosen_day} in {region}.")
 
 
 if __name__ == "__main__":

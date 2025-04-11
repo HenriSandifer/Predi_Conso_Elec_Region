@@ -6,41 +6,32 @@ from utils.dictionaries import lag_roll_features_by_model
 import os
 import mlflow
 
-from utils.utils import (prepare_pipeline_inputs,
-                   add_holiday_column,
+from src.prediction.utils_preprocessing import (add_holiday_column,
                    apply_lag_roll_features,
                    create_prediction_output_folder,
 )
-import pandas as pd
 
-def run_pipeline_for_model(region, target_day, run_time, model):
+from utils_df_test_inputs import get_df_test_inputs
+
+
+def run_pipeline_for_model(region, chosen_day, run_time, model):
     # Use your existing prep function
-    inputs = prepare_pipeline_inputs(region, target_day, model, run_time)
+    inputs = get_df_test_inputs(region, chosen_day, model, run_time)
 
     output_folder = create_prediction_output_folder(
     region_abbr_caps=inputs["region_caps"],
     target_month=inputs["chosen_day"].strftime("%Y-%m"),
-    target_day=inputs["chosen_day"],
+    chosen_day=inputs["chosen_day"],
     run_time_str=inputs["run_time_abbr"]
     )
 
-
     region_lwrc = inputs["region_abbr"]                          
-    region_caps = inputs["region_caps"]
     date_str = inputs["chosen_day"].strftime("%m-%d")
     run_time = inputs["run_time_abbr"]
-    month = inputs["chosen_day"].strftime("%B")
-    day = inputs["chosen_day"].day
-    year = inputs["chosen_day"].year
-    weekday = inputs["chosen_day"].strftime("%A")
-    model_antic = inputs["model_antic"]
-    chosen_day = inputs["chosen_day"]
-    func_model = inputs["func_model"]
-    d_minus_1 = chosen_day - timedelta(days=1)
-    d_plus_1 = chosen_day + timedelta(days=1)
+    model = inputs["model"]
 
     # From here on, everything that was in your notebook — reading data, feature engineering, model loading...
-    print(f"✅ Running pipeline for {region} on {target_day} at {run_time} using model {model}")
+    print(f"✅ Running pipeline for {region} on {chosen_day} at {run_time} using model {model}")
     
     # Example: run ML pipeline steps (preprocessing, inference, saving output)
     # df_test = build_test_set(inputs)
@@ -53,12 +44,9 @@ def run_pipeline_for_model(region, target_day, run_time, model):
 
     import unicodedata
 
-    func_region = region
-
-
     # Normalize Région column
     cons_temp_df["Région"] = cons_temp_df["Région"].apply(lambda x: unicodedata.normalize("NFC", x))
-    cons_temp_df = cons_temp_df[cons_temp_df["Région"] == func_region].copy()
+    cons_temp_df = cons_temp_df[cons_temp_df["Région"] == region].copy()
     # Define frequency (seasonality)
     cons_temp_df["day_of_year"] = cons_temp_df["Datetime"].dt.dayofyear
     cons_temp_df["week_of_year"] = cons_temp_df["Datetime"].dt.isocalendar().week.astype(float)
@@ -81,7 +69,7 @@ def run_pipeline_for_model(region, target_day, run_time, model):
 
     cons_temp_df.drop(columns=['day_of_year', 'week_of_year'], inplace=True)
 
-    lag_roll_features = lag_roll_features_by_model.get(func_model, [])
+    lag_roll_features = lag_roll_features_by_model.get(model, [])
 
     initial_features = ['t', 'DayOfWeek', 'IsWeekend',
                     'HourOfDay', 'Month', 'WeekOfYear', 'Holiday',
@@ -161,6 +149,7 @@ def run_pipeline_for_model(region, target_day, run_time, model):
 
 
     df_test = apply_lag_roll_features(df_test, cons_temp_df, inputs)
+
     # Apply PolynomialFeatures to interaction features (excluding lag/rolling)
     poly = PolynomialFeatures(degree=2, interaction_only=True, include_bias=False)
 
@@ -176,7 +165,7 @@ def run_pipeline_for_model(region, target_day, run_time, model):
     base_model_dir = "C:/Users/Henri/Documents/GitHub/Predi_Conso_Elec_Region/models"
     
     model_version = "1"
-    model_path = os.path.join(base_model_dir, f"xgb_model_{region_lwrc}_{func_model.lower()}_v1")
+    model_path = os.path.join(base_model_dir, f"xgb_model_{region_lwrc}_{model.lower()}_v1")
     xgb_model = mlflow.xgboost.load_model(model_path)
 
     ##### Running Prediction

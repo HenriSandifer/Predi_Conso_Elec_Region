@@ -16,7 +16,9 @@ from sklearn.metrics import (root_mean_squared_error,
                              mean_absolute_error, r2_score)
 import unicodedata
 
-def evaluate_all_predictions(region_abbr_caps, region_abbr_lwrc, target_month, chosen_day, run_time_str, func_region):
+from src.evaluation.utils_pred_eval_inputs import get_pred_eval_inputs
+
+def evaluate_all_predictions(region, region_abbr_caps, region_abbr_lwrc, target_month, chosen_day, run_time_str):
     date_str = chosen_day.strftime("%Y-%m-%d")
     base_dir = "Predictions"
     run_time_folder = os.path.join(base_dir, region_abbr_caps, str(target_month), date_str, str(run_time_str))
@@ -36,7 +38,7 @@ def evaluate_all_predictions(region_abbr_caps, region_abbr_lwrc, target_month, c
         r"C:\\Users\\Henri\\Documents\\GitHub\\Predi_Conso_Elec_Region\\data\\cons_temp_2025.csv",
         parse_dates=['Datetime']
     )
-    normalized_region = unicodedata.normalize("NFKD", func_region)
+    normalized_region = unicodedata.normalize("NFKD", region)
     df_real = df_real[
         (df_real["Région"].apply(lambda x: unicodedata.normalize("NFKD", x)) == normalized_region)
     ].copy()
@@ -63,7 +65,7 @@ def evaluate_all_predictions(region_abbr_caps, region_abbr_lwrc, target_month, c
         # Normalize run_time_str from "2" to "02:00:00"
         normalized_run_time = f"{int(run_time_str):02d}:00:00"
 
-        inputs = prepare_pipeline_inputs(func_region, chosen_day.strftime("%Y-%m-%d"), model_name.upper(), normalized_run_time)
+        inputs = get_pred_eval_inputs(region, chosen_day.strftime("%Y-%m-%d"), model_name.upper(), normalized_run_time)
         start = inputs["first_row"]
         end = inputs["last_row"]
 
@@ -94,10 +96,15 @@ def evaluate_all_predictions(region_abbr_caps, region_abbr_lwrc, target_month, c
         full_day_df.append(df_pred)
 
     # Full day concatenation
-    df_pred_full = pd.concat(full_day_df).sort_values("Datetime")
+    df_pred_full = pd.read_csv() ### GET IN THERE 
     df_real_day = df_real[df_real['Datetime'].dt.date == chosen_day.date()].copy()
     df_eval_full = pd.merge(df_pred_full, df_real_day, on="Datetime")
 
+    # Save df_real_day to CSV for future use for plotting
+    real_cons_path = os.path.join(run_time_folder, f"real_cons_{region_abbr_lwrc}_{date_str}.csv")
+    df_real_day.to_csv(real_cons_path, index=False)
+
+    # Define metrics
     mae = mean_absolute_error(df_eval_full["y_real"], df_eval_full["y_pred"])
     rmse = root_mean_squared_error(df_eval_full["y_real"], df_eval_full["y_pred"])
     r2 = r2_score(df_eval_full["y_real"], df_eval_full["y_pred"])
@@ -117,17 +124,3 @@ def evaluate_all_predictions(region_abbr_caps, region_abbr_lwrc, target_month, c
     metrics_path = os.path.join(run_time_folder, f"evaluation_metrics_{region_abbr_lwrc}_{date_str}_{run_time_str}.csv")
     metrics_df.to_csv(metrics_path, index=False)
     print(f"📊 Metrics saved to: {metrics_path}")
-
-    # Plot full-day only
-    plt.figure(figsize=(12, 5))
-    plt.plot(df_eval_full["Datetime"], df_eval_full["y_real"], label="Real", linewidth=2)
-    plt.plot(df_eval_full["Datetime"], df_eval_full["y_pred"], label="Predicted", linestyle="--")
-    plt.title(f"{region_abbr_caps} - {chosen_day} - {run_time_str} D0 Run\nPredicted vs Real Consumption")
-    plt.xlabel("Time")
-    plt.ylabel("MW")
-    plt.legend()
-    plt.tight_layout()
-
-    plot_path = os.path.join(run_time_folder, f"prediction_plot_{region_abbr_lwrc}_{run_time_str}.png")
-    plt.savefig(plot_path)
-    print(f"📈 Plot saved to: {plot_path}")

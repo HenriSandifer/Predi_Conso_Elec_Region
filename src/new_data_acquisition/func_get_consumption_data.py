@@ -1,6 +1,6 @@
 import requests
 import pandas as pd
-from utils.utils import prepare_pipeline_inputs
+from src.new_data_acquisition.utils_cons_API_inputs import get_cons_API_inputs
 
 """Make sure only the relevant timerange is pulled
 A matter of hours now, not days
@@ -12,7 +12,7 @@ def get_regional_consumption(region_name, target_day):
     model = "M36"
     run_time = "02:00:00"
 
-    inputs = prepare_pipeline_inputs(region_name, target_day.strftime("%Y-%m-%d"), model, run_time)
+    inputs = get_cons_API_inputs(region_name, target_day.strftime("%Y-%m-%d"), model, run_time)
     
     url = "https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/eco2mix-regional-tr/records"
     params = {
