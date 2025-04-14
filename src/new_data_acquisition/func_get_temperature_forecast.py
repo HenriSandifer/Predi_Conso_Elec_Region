@@ -1,4 +1,4 @@
-from utils.dictionaries import weather_coordinates
+from dictionaries import weather_coordinates
 import openmeteo_requests
 import requests_cache
 import pandas as pd

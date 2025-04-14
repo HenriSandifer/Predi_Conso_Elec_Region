@@ -12,7 +12,6 @@ region_abbr_caps_dict = {
         "Île-de-France": "IDF",
         "Auvergne-Rhône-Alpes": "ARA",
         "Grand Est": "GRE",
-        "Normandie": "NOR",
         "Bretagne": "BRE",
         "Provence-Alpes-Côte d'Azur": "PAC",
         "Hauts-de-France": "HDF",
@@ -27,7 +26,6 @@ region_abbr_dict = {
         "Île-de-France": "idf",
         "Auvergne-Rhône-Alpes": "ara",
         "Grand Est": "gre",
-        "Normandie": "nor",
         "Bretagne": "bre",
         "Provence-Alpes-Côte d'Azur": "pac",
         "Hauts-de-France": "hdf",
@@ -51,7 +49,6 @@ holiday_zones = {
     "Grand Est": "B",
     "Hauts-de-France": "B",
     "Île-de-France": "C",
-    "Normandie": "B",
     "Nouvelle-Aquitaine": "A",
     "Occitanie": "C",
     "Pays de la Loire": "B",
@@ -195,7 +192,7 @@ weather_coordinates = {
         {"city": "Belfort", "latitude": 47.639674, "longitude": 6.863849},
         {"city": "Chalon-sur-Saône", "latitude": 46.782972, "longitude": 4.852051}
     ],
-    "Brittany": [
+    "Bretagne": [
         {"city": "Rennes", "latitude": 48.117266, "longitude": -1.677793},
         {"city": "Brest", "latitude": 48.390394, "longitude": -4.486076},
         {"city": "Quimper", "latitude": 47.996092, "longitude": -4.102201},
@@ -207,7 +204,7 @@ weather_coordinates = {
         {"city": "Bourges", "latitude": 47.081012, "longitude": 2.398782},
         {"city": "Chartres", "latitude": 48.443892, "longitude": 1.489013}
     ],
-    "Corsica": [
+    "Corse": [
         {"city": "Ajaccio", "latitude": 41.919229, "longitude": 8.738635},
         {"city": "Bastia", "latitude": 42.697283, "longitude": 9.450881},
         {"city": "Corte", "latitude": 42.306382, "longitude": 9.150099},
@@ -231,7 +228,7 @@ weather_coordinates = {
         {"city": "Saint-Denis", "latitude": 48.936181, "longitude": 2.357443},
         {"city": "Argenteuil", "latitude": 48.947209, "longitude": 2.246684}
     ],
-    "Normandy": [
+    "Normandie": [
         {"city": "Rouen", "latitude": 49.443232, "longitude": 1.099971},
         {"city": "Caen", "latitude": 49.182863, "longitude": -0.370679},
         {"city": "Le Havre", "latitude": 49.49437, "longitude": 0.107929},

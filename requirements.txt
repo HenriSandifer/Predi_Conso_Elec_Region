@@ -2,4 +2,8 @@ pandas
 numpy
 requests
 vacances_scolaires_france
-
+plotly
+boto3
+openmeteo_requests
+requests_cache
+retry_requests

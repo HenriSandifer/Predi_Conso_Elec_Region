@@ -129,7 +129,7 @@ def run_pipeline_for_model(region, chosen_day, run_time, model):
     df_t_pred = df_temp[df_temp['Datetime'].dt.day == inputs["chosen_day"].day].copy()
 
     # Add the Holiday column
-    df_test = add_holiday_column(df_test, cons_temp_df)
+    df_test = add_holiday_column(df_test, cons_temp_df) # 
 
     # Convert to binary (1/0)
     df_test["Holiday"] = df_test["Holiday"].astype(int)
