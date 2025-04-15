@@ -79,5 +79,4 @@ if __name__ == "__main__":
     parser.add_argument("--time", type=str, required=True, help="Run time (e.g., '02:00:00')")
 
     args = parser.parse_args()
-
     run_all_models_for_time(args.region, args.day, args.time)   

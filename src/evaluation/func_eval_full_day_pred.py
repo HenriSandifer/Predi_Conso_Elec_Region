@@ -21,10 +21,10 @@ def evaluate_full_day_prediction(region, region_abbr_caps, region_abbr_lwrc, tar
     """
     run_time_str = run_time_dict.get(run_time_str)
     date_str = chosen_day.strftime("%Y-%m-%d")
-    run_time_folder_key = f"Predictions/{region_abbr_caps}/{target_month}/{date_str}/{run_time_str}"
+    run_time_pred_folder_key = f"Predictions/{region_abbr_caps}/{target_month}/{date_str}/{run_time_str}/eval"
 
     pred_filename = f"pred_full_{region_abbr_lwrc}_{date_str}_{run_time_str}.csv"
-    pred_key = f"{run_time_folder_key}/{pred_filename}"
+    pred_key = f"{run_time_pred_folder_key}/{pred_filename}"
 
     try:
         df_pred = read_csv_from_s3(pred_key)
@@ -72,12 +72,13 @@ def evaluate_full_day_prediction(region, region_abbr_caps, region_abbr_lwrc, tar
 
     # Save the evaluation CSV
     eval_filename = f"eval_full_{region_abbr_lwrc}_{date_str}_{run_time_str}.csv"
-    eval_key = f"{run_time_folder_key}/{eval_filename}"
+    run_time_eval_folder_key = f"Predictions/{region_abbr_caps}/{target_month}/{date_str}/{run_time_str}/eval" 
+    eval_key = f"{run_time_eval_folder_key}/{eval_filename}"
     write_csv_to_s3(df_eval, eval_key)
 
     # Append metrics to the same file as others (overwrite ok)
     metrics_df = pd.DataFrame(metrics)
-    metrics_key = f"{run_time_folder_key}/metrics_individual_models_{region_abbr_lwrc}_{date_str}_{run_time_str}.csv"
+    metrics_key = f"{run_time_eval_folder_key}/metrics_individual_models_{region_abbr_lwrc}_{date_str}_{run_time_str}.csv"
 
     try:
         # Try reading existing metrics and append to it
@@ -89,4 +90,4 @@ def evaluate_full_day_prediction(region, region_abbr_caps, region_abbr_lwrc, tar
 
     write_csv_to_s3(combined_df, metrics_key)
 
-    print(f"✅ Full-day prediction evaluation and metrics saved to: s3://{bucket_name}/{run_time_folder_key}")
+    print(f"✅ Full-day prediction evaluation and metrics saved to: s3://{bucket_name}/{run_time_eval_folder_key}")
