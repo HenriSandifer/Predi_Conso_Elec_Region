@@ -16,7 +16,7 @@ from sklearn.metrics import (root_mean_squared_error,
                              mean_absolute_error, r2_score)
 import unicodedata
 
-from src.evaluation.utils_pred_eval_inputs import get_pred_eval_inputs
+from utils_pred_eval_inputs import get_pred_eval_inputs
 
 def evaluate_all_predictions(region, region_abbr_caps, region_abbr_lwrc, target_month, chosen_day, run_time_str):
     date_str = chosen_day.strftime("%Y-%m-%d")

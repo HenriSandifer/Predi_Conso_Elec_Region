@@ -1,27 +1,17 @@
 import pandas as pd
-from datetime import datetime, timedelta
-from utils.dictionaries import (weather_stations, region_abbr_dict,
-                                 region_abbr_caps_dict, run_time_dict,
-                                   model_delta, holiday_zones,
-                                     prediction_timeframes,
-                                       models_by_run_time,
-                                         lag_roll_features_by_model,
-                                           lag_feature_multipliers_by_model,
-                                             roll_feature_multipliers)
+from datetime import timedelta
+from dictionaries import (holiday_zones,
+                          lag_roll_features_by_model,
+                          lag_feature_multipliers_by_model,
+                          roll_feature_multipliers)
 from vacances_scolaires_france import SchoolHolidayDates
 import pandas as pd
-import os
-import matplotlib.pyplot as plt
-from sklearn.metrics import (root_mean_squared_error,
-                             mean_absolute_error, r2_score)
-import unicodedata
 
-def add_holiday_column(df_test, cons_temp_df):
+def add_holiday_column(df_test, cons_df):
     # 1. Map regions to zones
     df_test = df_test.copy()  # Work on a copy to avoid modifying the original
     
-    cons_temp_df
-    df_test["Zone"] = cons_temp_df["Région"].map(holiday_zones)
+    df_test["Zone"] = cons_df["Région"].map(holiday_zones)
     
     # 2. Handle missing zones
     df_test["Zone"] = df_test["Zone"].fillna("Unknown")
@@ -42,52 +32,50 @@ def add_holiday_column(df_test, cons_temp_df):
     return df_test.merge(date_zones, on=["Datetime", "Zone"])
 
 
-def apply_lag_roll_features(df_test, cons_temp_df, inputs):
-    model_antic = inputs["model_antic"]
+def apply_lag_roll_features(df_test, cons_df, inputs):
     deltatime = inputs["deltatime"]
     first_row = inputs["first_row"]
     last_row = inputs["last_row"]
-    func_model = inputs["func_model"]
+    model = inputs["model"]
 
-    lag_roll_features = lag_roll_features_by_model.get(func_model, [])
+    lag_roll_features = lag_roll_features_by_model.get(model, [])
 
     # Ensure timezone-neutral
-    cons_temp_df["Datetime"] = pd.to_datetime(cons_temp_df["Datetime"]).dt.tz_localize(None)
+    cons_df["Datetime"] = pd.to_datetime(cons_df["Datetime"]).dt.tz_localize(None)
 
     for feature in lag_roll_features:
         if "rolling" in feature:
             # Compute rolling feature globally before slicing
             window = roll_feature_multipliers[feature]
-            cons_temp_df[feature] = cons_temp_df["Consommation (MW)"].rolling(window=window).mean()
+            cons_df[feature] = cons_df["Consommation (MW)"].rolling(window=window).mean()
 
             # Match datetime with deltatime shift
             dt_start = first_row - deltatime
             dt_end = last_row - deltatime
-            df_filtered = cons_temp_df[(cons_temp_df['Datetime'] >= dt_start) & (cons_temp_df['Datetime'] <= dt_end)]
+            df_filtered = cons_df[(cons_df['Datetime'] >= dt_start) & (cons_df['Datetime'] <= dt_end)]
             df_test[feature] = df_filtered[feature].values
 
         elif "lag" in feature:
             # Use model-specific multipliers
-            model_lag_dict = lag_feature_multipliers_by_model.get(func_model, {})
+            model_lag_dict = lag_feature_multipliers_by_model.get(model, {})
             lag_hours = model_lag_dict.get(feature, ())
             lagged_timestamps = df_test["Datetime"] - timedelta(hours=lag_hours)  # or use seconds * multiplier
-            df_filtered = cons_temp_df[cons_temp_df["Datetime"].isin(lagged_timestamps)]
+            df_filtered = cons_df[cons_df["Datetime"].isin(lagged_timestamps)]
             df_test[feature] = df_filtered["Consommation (MW)"].values
         
 
     return df_test
 
 
-def create_prediction_output_folder(region_abbr_caps, target_month, target_day, run_time_str):
+def create_prediction_output_key(region_abbr_caps, target_month, chosen_day, run_time_str):
     """
-    Creates a folder structure: Predictions/REGION/Month/YYYY-MM-DD/HH:MM/
-    Returns the full path to the run_time folder.
+    Generates an S3 key prefix like:
+    Predictions/REGION/MONTH/YYYY-MM-DD/HH:MM/
+    Returns the full S3 key prefix.
     """
     base_dir = "Predictions"
-    date_folder = target_day.strftime("%Y-%m-%d")  # e.g., 2025-03-12
+    date_folder = pd.to_datetime(chosen_day).strftime("%Y-%m-%d")  # e.g., 2025-03-12
     run_time_folder = str(run_time_str)  # e.g., "02:00"
     month_folder = str(target_month)
-    full_path = os.path.join(base_dir, region_abbr_caps, month_folder, date_folder, run_time_folder)
-
-    os.makedirs(full_path, exist_ok=True)
-    return full_path
+    
+    return f"{base_dir}/{region_abbr_caps}/{month_folder}/{date_folder}/{run_time_folder}"

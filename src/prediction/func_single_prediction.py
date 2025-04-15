@@ -2,30 +2,34 @@ import pandas as pd
 import numpy as np
 from datetime import timedelta
 from sklearn.preprocessing import PolynomialFeatures
-from utils.dictionaries import lag_roll_features_by_model
-import os
+from dictionaries import lag_roll_features_by_model, run_time_temp_column_map
 import mlflow
+import unicodedata
 
-from src.prediction.utils_preprocessing import (add_holiday_column,
+
+from utils_s3 import read_csv_from_s3, write_csv_to_s3
+
+from utils_preprocessing import (add_holiday_column,
                    apply_lag_roll_features,
-                   create_prediction_output_folder,
-)
+                   create_prediction_output_key)
 
 from utils_df_test_inputs import get_df_test_inputs
 
+S3_TEMP_FILENAME = "raw_data/temperature_forecast_data.csv"
+S3_CONS_FILENAME = "raw_data/real_cons_data.csv"
 
 def run_pipeline_for_model(region, chosen_day, run_time, model):
     # Use your existing prep function
     inputs = get_df_test_inputs(region, chosen_day, model, run_time)
 
-    output_folder = create_prediction_output_folder(
+    s3_folder_key = create_prediction_output_key(
     region_abbr_caps=inputs["region_caps"],
     target_month=inputs["chosen_day"].strftime("%Y-%m"),
     chosen_day=inputs["chosen_day"],
     run_time_str=inputs["run_time_abbr"]
     )
 
-    region_lwrc = inputs["region_abbr"]                          
+    region_lwrc = inputs["region_abbr"]                        
     date_str = inputs["chosen_day"].strftime("%m-%d")
     run_time = inputs["run_time_abbr"]
     model = inputs["model"]
@@ -40,34 +44,48 @@ def run_pipeline_for_model(region, chosen_day, run_time, model):
     # Save predictions to CSV
     # Evaluate and log metrics with MLflow
 
-    cons_temp_df = pd.read_csv(r"C:\Users\Henri\Documents\GitHub\Predi_Conso_Elec_Region\data\cons_temp_2025.csv", parse_dates=['Datetime'])
-
-    import unicodedata
+    # Defining df_cons
+    df_cons = read_csv_from_s3(S3_CONS_FILENAME)
 
     # Normalize Région column
-    cons_temp_df["Région"] = cons_temp_df["Région"].apply(lambda x: unicodedata.normalize("NFC", x))
-    cons_temp_df = cons_temp_df[cons_temp_df["Région"] == region].copy()
-    # Define frequency (seasonality)
-    cons_temp_df["day_of_year"] = cons_temp_df["Datetime"].dt.dayofyear
-    cons_temp_df["week_of_year"] = cons_temp_df["Datetime"].dt.isocalendar().week.astype(float)
+    df_cons["Région"] = df_cons["Région"].apply(lambda x: unicodedata.normalize("NFC", x))
+    df_cons = df_cons[df_cons["Région"] == region].copy()
+    
+    # Setting to datetime
+    df_cons["Datetime"] = pd.to_datetime(df_cons["Datetime"], utc=True)
+    df_cons["Datetime"] = pd.to_datetime(df_cons["Datetime"]).dt.tz_convert("Europe/Paris").dt.tz_localize(None)
+    
+    # FEATURE ENGINEERING WITH TIME MARKERS
+    df_cons['DayOfWeek'] = df_cons['Datetime'].dt.weekday
+    df_cons['IsWeekend'] = df_cons['DayOfWeek'].isin([5, 6])  # Saturday and Sunday are weekend
+    df_cons['HourOfDay'] = df_cons['Datetime'].dt.hour
+
+    df_cons['IsMorning'] = df_cons['HourOfDay'].between(6, 11)
+    df_cons['IsAfternoon'] = df_cons['HourOfDay'].between(12, 17)
+    df_cons['IsEvening'] = df_cons['HourOfDay'].between(18, 22)
+    df_cons['IsNight'] = (df_cons['HourOfDay'] >= 23) | (df_cons['HourOfDay'] <= 5)
+
+    df_cons["Month"] = df_cons["Datetime"].dt.month
+    df_cons["week_of_year"] = df_cons["Datetime"].dt.isocalendar().week.astype(float)
 
     # Annual Seasonality
-    cons_temp_df["sin_annual"] = np.sin(2 * np.pi * cons_temp_df["day_of_year"] / 365.25)
-    cons_temp_df["cos_annual"] = np.cos(2 * np.pi * cons_temp_df["day_of_year"] / 365.25)
+    df_cons["day_of_year"] = df_cons["Datetime"].dt.dayofyear
+    df_cons["sin_annual"] = np.sin(2 * np.pi * df_cons["day_of_year"] / 365.25)
+    df_cons["cos_annual"] = np.cos(2 * np.pi * df_cons["day_of_year"] / 365.25)
 
     # Weekly Seasonality
-    cons_temp_df["sin_weekly"] = np.sin(2 * np.pi * cons_temp_df["week_of_year"] / 52)
-    cons_temp_df["cos_weekly"] = np.cos(2 * np.pi * cons_temp_df["week_of_year"] / 52)
-
+    df_cons["sin_weekly"] = np.sin(2 * np.pi * df_cons["week_of_year"] / 52)
+    df_cons["cos_weekly"] = np.cos(2 * np.pi * df_cons["week_of_year"] / 52)
+      
     # Daily Seasonality
-    cons_temp_df["sin_daily"] = np.sin(2 * np.pi * cons_temp_df["HourOfDay"] / 24)
-    cons_temp_df["cos_daily"] = np.cos(2 * np.pi * cons_temp_df["HourOfDay"] / 24)
+    df_cons["sin_daily"] = np.sin(2 * np.pi * df_cons["HourOfDay"] / 24)
+    df_cons["cos_daily"] = np.cos(2 * np.pi * df_cons["HourOfDay"] / 24)
 
     # Monthly seasonality
-    cons_temp_df["sin_season"] = np.sin(2 * np.pi * cons_temp_df["Month"] / 12)
-    cons_temp_df["cos_season"] = np.cos(2 * np.pi * cons_temp_df["Month"] / 12)
+    df_cons["sin_season"] = np.sin(2 * np.pi * df_cons["Month"] / 12)
+    df_cons["cos_season"] = np.cos(2 * np.pi * df_cons["Month"] / 12)
 
-    cons_temp_df.drop(columns=['day_of_year', 'week_of_year'], inplace=True)
+    df_cons.drop(columns=['day_of_year', 'week_of_year'], inplace=True)
 
     lag_roll_features = lag_roll_features_by_model.get(model, [])
 
@@ -119,17 +137,34 @@ def run_pipeline_for_model(region, chosen_day, run_time, model):
                 ((inputs["chosen_day"] + timedelta(days=1)).month,
                     (inputs["chosen_day"] + timedelta(days=1)).day)]
 
-    df_temp = cons_temp_df[
-        (cons_temp_df['Datetime'].dt.year == inputs["chosen_day"].year) &
-        (cons_temp_df['Datetime'].dt.month.isin([m for m,d in temp_dates])) &
-        (cons_temp_df['Datetime'].dt.day.isin([d for m,d in temp_dates]))
+    # Defining df_temp
+    df_temp = read_csv_from_s3(S3_TEMP_FILENAME)
+
+    # Normalize Région column
+    df_temp["Région"] = df_temp["Région"].apply(lambda x: unicodedata.normalize("NFC", x))
+    df_temp = df_temp[df_temp["Région"] == region].copy()
+
+    # Setting to datetime
+    df_temp["Datetime"] = pd.to_datetime(df_temp["Datetime"], utc=True)
+    df_temp["Datetime"] = pd.to_datetime(df_temp["Datetime"]).dt.tz_convert("Europe/Paris").dt.tz_localize(None)
+   
+    df_temp = df_temp[
+        (df_temp['Datetime'].dt.year == inputs["chosen_day"].year) &
+        (df_temp['Datetime'].dt.month.isin([m for m,d in temp_dates])) &
+        (df_temp['Datetime'].dt.day.isin([d for m,d in temp_dates]))
     ].copy()
 
-    # Isolate data of the target day
-    df_t_pred = df_temp[df_temp['Datetime'].dt.day == inputs["chosen_day"].day].copy()
+    run_time_str=str(inputs["run_time_abbr"])
+    temp_col = run_time_temp_column_map.get(run_time_str)
+    if not temp_col:
+        raise ValueError(f'❌ No temperature column mapped for run_time: {run_time_str}')
+        
+    # Isolate data of the target day from the correct temperature column in temperature_forecast.csv
+    df_t_pred = df_temp[df_temp['Datetime'].dt.day == inputs["chosen_day"].day][["Datetime", temp_col]].copy()
+    df_t_pred.rename(columns={temp_col: "t"}, inplace=True)
 
     # Add the Holiday column
-    df_test = add_holiday_column(df_test, cons_temp_df) # 
+    df_test = add_holiday_column(df_test, df_cons) # 
 
     # Convert to binary (1/0)
     df_test["Holiday"] = df_test["Holiday"].astype(int)
@@ -146,9 +181,7 @@ def run_pipeline_for_model(region, chosen_day, run_time, model):
     # Apply to the ENTIRE dataset first
     df_test = add_time_features(df_test)
     df_test = df_test.merge(df_t_pred[["Datetime", "t"]], on="Datetime", how="left")
-
-
-    df_test = apply_lag_roll_features(df_test, cons_temp_df, inputs)
+    df_test = apply_lag_roll_features(df_test, df_cons, inputs)
 
     # Apply PolynomialFeatures to interaction features (excluding lag/rolling)
     poly = PolynomialFeatures(degree=2, interaction_only=True, include_bias=False)
@@ -162,19 +195,21 @@ def run_pipeline_for_model(region, chosen_day, run_time, model):
         columns=poly.get_feature_names_out(input_features=all_features),
         index=X_mixed_test.index
     )
-    base_model_dir = "C:/Users/Henri/Documents/GitHub/Predi_Conso_Elec_Region/models"
+
+    mlflow.set_tracking_uri("s3://predi-conso-elec-region")
     
     model_version = "1"
-    model_path = os.path.join(base_model_dir, f"xgb_model_{region_lwrc}_{model.lower()}_v1")
-    xgb_model = mlflow.xgboost.load_model(model_path)
+    model_name = f"xgb_model_{region_lwrc}_{model.lower()}_v{model_version}"
+    model_s3_path = f"s3://predi-conso-elec-region/models/{model_name}"
+    
+    xgb_model = mlflow.xgboost.load_model(model_s3_path)
 
     ##### Running Prediction
     # Use the model to predict D+1 consumption
     df_test["Predicted_Consumption"] = xgb_model.predict(X_mixed_interactions_test_df)
 
     # Save results
-
-    csv_path = os.path.join(output_folder, "pred_cons_{}_{}_{}D0_{}_v{}_1.csv".format(region_lwrc, model, run_time, date_str, model_version))
-    df_test.to_csv(csv_path, index=False)
-
-
+    filename = f"pred_cons_{region_lwrc}_{model}_{run_time}_{date_str}_v{model_version}.csv"
+    s3_key = f"{s3_folder_key}/{filename}"
+    write_csv_to_s3(df_test, s3_key)
+    print(f"✅ Added single model prediction for {region_lwrc} run_time {run_time} on {chosen_day} to S3.")

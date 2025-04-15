@@ -1,33 +1,53 @@
-from src.prediction.func_single_prediction import run_pipeline_for_model
-from utils.dictionaries import models_by_run_time
+from func_single_prediction import run_pipeline_for_model
+from dictionaries import (models_by_run_time,
+                          region_abbr_caps_dict,
+                           run_time_dict,
+                           region_abbr_dict)
+from utils_s3 import read_csv_from_s3, write_csv_to_s3
+from utils_preprocessing import create_prediction_output_key
 import pandas as pd
 import argparse
-import os
+import boto3
+import pandas as pd
 
-def run_all_models_for_time(region_abbr_caps, region_abbr_lwrc, target_month, chosen_day, run_time_str, region, run_time):
+def run_all_models_for_time(region, chosen_day, run_time):
     """
     Runs all models for a given region, target day, and run time.
 
     Saves CSV of concatenated prediction for run_time
 
     """
-    models_to_run = models_by_run_time[run_time]
 
+    region_abbr_caps = region_abbr_caps_dict.get(region, "NA")
+    target_month = pd.to_datetime(chosen_day).strftime("%Y-%m")
+    run_time_str = run_time_dict.get(run_time, "NA")
+    region_abbr_lwrc = region_abbr_dict.get(region, "NA")
+    
+    models_to_run = models_by_run_time[run_time]
+    
     for model in models_to_run:
         print(f"⌛ Running {model} model...")
         run_pipeline_for_model(region, chosen_day, run_time, model)
-    
-    ### Saving full day prediction of given run_time
 
-    date_str = chosen_day.strftime("%Y-%m-%d")
-    base_dir = "Predictions"
-    run_time_folder = os.path.join(base_dir, region_abbr_caps, str(target_month), date_str, str(run_time_str))
+    ### Saving full day prediction of given run_time
+    date_str = pd.to_datetime(chosen_day).strftime("%Y-%m-%d")
+    bucket_name = "predi-conso-elec-region"
+    run_time_folder_key = create_prediction_output_key(
+        region_abbr_caps,
+        target_month,
+        chosen_day,
+        run_time_str)
 
     # Gather CSV files
+    s3 = boto3.client("s3")
+
+    # List objects inside the run_time folder on S3
+    response = s3.list_objects_v2(Bucket=bucket_name, Prefix=run_time_folder_key + "/")
+    
     prediction_files = [
-        os.path.join(run_time_folder, f)
-        for f in os.listdir(run_time_folder)
-        if f.endswith(".csv") and "all_models" not in f  # Avoid reloading concatenated full-day prediction
+        obj["Key"]
+        for obj in response.get("Contents", [])
+        if obj["Key"].endswith(".csv") and "all_models" not in obj["Key"]
     ]
 
     if not prediction_files:
@@ -36,19 +56,20 @@ def run_all_models_for_time(region_abbr_caps, region_abbr_lwrc, target_month, ch
 
     full_day_df = []
 
-    for file in prediction_files:
-        df_pred = pd.read_csv(file, parse_dates=["Datetime"])
-                
+    for s3_key in prediction_files:
+        df_pred = read_csv_from_s3(s3_key)
         df_pred.rename(columns={"Predicted_Consumption": "y_pred"}, inplace=True)
-        
         full_day_df.append(df_pred)
 
     # Full day concatenation
     df_pred_full = pd.concat(full_day_df).sort_values("Datetime")
 
     # Save df_pred_full to CSV for later evaluation and plotting
-    pred_path = os.path.join(run_time_folder, f"pred_full_{region_abbr_lwrc}_{date_str}_{run_time_str}.csv")
-    df_pred_full.to_csv(pred_path, index=False)
+    pred_filename = f"pred_full_{region_abbr_lwrc}_{date_str}_{run_time_str}.csv"
+    pred_key = f"{run_time_folder_key}/{pred_filename}"
+
+    write_csv_to_s3(df_pred_full, pred_key)
+    print(f"✅ Added full-day prediction for {region_abbr_caps} run_time {run_time} on {chosen_day} to S3.")
 
 if __name__ == "__main__":
 

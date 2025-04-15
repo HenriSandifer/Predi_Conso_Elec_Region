@@ -1,6 +1,6 @@
 import pandas as pd
 from datetime import datetime, timedelta
-from utils.dictionaries import (region_abbr_dict,
+from dictionaries import (region_abbr_dict,
                                  region_abbr_caps_dict, run_time_dict,
                                    model_delta,
                                      prediction_timeframes)

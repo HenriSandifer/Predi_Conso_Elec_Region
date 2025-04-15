@@ -15,3 +15,5 @@ COPY SRC_for_docker/src/ /app/src
 
 # Set entrypoint
 CMD ["python", "scripts/update_consumption_data.py"]
+
+export MLFLOW_TRACKING_URI=s3://predi-conso-elec-region
