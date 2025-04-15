@@ -78,4 +78,4 @@ def create_prediction_output_key(region_abbr_caps, target_month, chosen_day, run
     run_time_folder = str(run_time_str)  # e.g., "02:00"
     month_folder = str(target_month)
     
-    return f"{base_dir}/{region_abbr_caps}/{month_folder}/{date_folder}/{run_time_folder}"
+    return f"{base_dir}/{region_abbr_caps}/{month_folder}/{date_folder}/{run_time_folder}/pred"

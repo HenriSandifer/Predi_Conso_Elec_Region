@@ -6,6 +6,10 @@ import argparse
 from utils.dictionaries import region_abbr_caps_dict, region_abbr_dict
 
 def aggregate_all_metrics(region_abbr_caps, target_month, region_abbr_lwrc):
+    """
+    Description
+    
+    """
     base_dir = os.path.join("Predictions", region_abbr_caps, target_month)
     all_metrics = []
 
