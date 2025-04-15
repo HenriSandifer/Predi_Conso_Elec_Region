@@ -226,6 +226,7 @@ def evaluate_all_predictions(region_abbr_caps, region_abbr_lwrc, target_month, c
         # Normalize run_time_str from "2" to "02:00:00"
         normalized_run_time = f"{int(run_time_str):02d}:00:00"
 
+        ### Try changing "chosen_day.strftime("%Y-%m-%d") to "date_str" ###
         inputs = prepare_pipeline_inputs(func_region, chosen_day.strftime("%Y-%m-%d"), model_name.upper(), normalized_run_time)
         start = inputs["first_row"]
         end = inputs["last_row"]

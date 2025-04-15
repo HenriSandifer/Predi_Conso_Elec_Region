@@ -26,7 +26,7 @@ def run_all_models_for_time(func_region, func_target_day, func_run_time):
             model=func_model
     )
     
-    # Evaluate the full-day concatenated predictions
+    # Evaluate full-day concatenated predictions
     evaluate_all_predictions(
         region_abbr_caps=region_abbr_caps_dict[func_region],
         region_abbr_lwrc=region_abbr_dict[func_region],
