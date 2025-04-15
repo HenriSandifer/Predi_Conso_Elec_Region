@@ -67,7 +67,6 @@ def run_all_models_for_time(region, chosen_day, run_time):
     # Save df_pred_full to CSV for later evaluation and plotting
     pred_filename = f"pred_full_{region_abbr_lwrc}_{date_str}_{run_time_str}.csv"
     pred_key = f"{run_time_folder_key}/{pred_filename}"
-
     write_csv_to_s3(df_pred_full, pred_key)
     print(f"✅ Added full-day prediction for {region_abbr_caps} run_time {run_time} on {chosen_day} to S3.")
 
