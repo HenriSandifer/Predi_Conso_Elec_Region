@@ -14,16 +14,33 @@ s3 = boto3.client("s3")
 bucket_name = "predi-conso-elec-region"
 
 
-def evaluate_full_day_prediction(region, region_abbr_caps, region_abbr_lwrc, target_month, chosen_day, run_time_str):
+def evaluate_full_day_prediction(region, region_abbr_caps, region_abbr_lwrc, target_month, chosen_day, run_time_hr):
     """
     Evaluates the full-day prediction file (ALL_MODELS) for a given run_time.
     Saves merged eval file and metrics to S3.
+    
     """
-    run_time_str = run_time_dict.get(run_time_str)
+    
     date_str = chosen_day.strftime("%Y-%m-%d")
-    run_time_pred_folder_key = f"Predictions/{region_abbr_caps}/{target_month}/{date_str}/{run_time_str}/eval"
+    run_time_pred_folder_key = f"Predictions/{region_abbr_caps}/{target_month}/{date_str}/{run_time_hr}/pred"
 
-    pred_filename = f"pred_full_{region_abbr_lwrc}_{date_str}_{run_time_str}.csv"
+    # Define full-day evaluation file path and check if it exists
+    eval_filename_check = f"eval_full_{region_abbr_lwrc}_{date_str}_{run_time_hr}.csv"
+    run_time_eval_folder_key = f"Predictions/{region_abbr_caps}/{target_month}/{date_str}/{run_time_hr}/eval"
+    eval_key_check = f"{run_time_eval_folder_key}/{eval_filename_check}"
+
+    try:
+        s3.head_object(Bucket=bucket_name, Key=eval_key_check)
+        print(f"✋ Evaluation file already exists for {region} on {date_str} at {run_time_hr}, skipping.")
+        return  # Skip evaluation
+    except s3.exceptions.ClientError as e:
+        if e.response["Error"]["Code"] != "404":
+            raise  # Raise other unexpected errors
+      
+    date_str = chosen_day.strftime("%Y-%m-%d")
+    run_time_pred_folder_key = f"Predictions/{region_abbr_caps}/{target_month}/{date_str}/{run_time_hr}/pred"
+
+    pred_filename = f"pred_full_{region_abbr_lwrc}_{date_str}_{run_time_hr}.csv"
     pred_key = f"{run_time_pred_folder_key}/{pred_filename}"
 
     try:
@@ -71,14 +88,14 @@ def evaluate_full_day_prediction(region, region_abbr_caps, region_abbr_lwrc, tar
     }]
 
     # Save the evaluation CSV
-    eval_filename = f"eval_full_{region_abbr_lwrc}_{date_str}_{run_time_str}.csv"
-    run_time_eval_folder_key = f"Predictions/{region_abbr_caps}/{target_month}/{date_str}/{run_time_str}/eval" 
+    eval_filename = f"eval_full_{region_abbr_lwrc}_{date_str}_{run_time_hr}.csv"
+    run_time_eval_folder_key = f"Predictions/{region_abbr_caps}/{target_month}/{date_str}/{run_time_hr}/eval" 
     eval_key = f"{run_time_eval_folder_key}/{eval_filename}"
     write_csv_to_s3(df_eval, eval_key)
 
     # Append metrics to the same file as others (overwrite ok)
     metrics_df = pd.DataFrame(metrics)
-    metrics_key = f"{run_time_eval_folder_key}/metrics_individual_models_{region_abbr_lwrc}_{date_str}_{run_time_str}.csv"
+    metrics_key = f"{run_time_eval_folder_key}/metrics_individual_models_{region_abbr_lwrc}_{date_str}_{run_time_hr}.csv"
 
     try:
         # Try reading existing metrics and append to it

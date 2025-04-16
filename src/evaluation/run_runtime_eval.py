@@ -2,14 +2,15 @@ from func_eval_model_pred import evaluate_model_predictions
 from func_eval_full_day_pred import evaluate_full_day_prediction
 from dictionaries import (
     region_abbr_caps_dict,
-    region_abbr_dict
+    region_abbr_dict,
+    run_time_dict
 )
 
 import pandas as pd
 import argparse
 
 
-def run_single_runtime_evaluation(region, chosen_day_str, run_time):
+def run_single_runtime_evaluation(region, chosen_day_str, run_time_hms):
     """
     Evaluates model predictions and full-day prediction
     for a given region, day, and run_time.
@@ -21,19 +22,21 @@ def run_single_runtime_evaluation(region, chosen_day_str, run_time):
     region_abbr_caps = region_abbr_caps_dict[region]
     region_abbr_lwrc = region_abbr_dict[region]
 
-    print(f"🔄 Evaluating predictions for run_time: {run_time}")
+    run_time_hr = run_time_dict.get(run_time_hms)
+
+    print(f"🔄 Evaluating predictions for run_time: {run_time_hr}")
 
     try:
-        evaluate_model_predictions(region, region_abbr_caps, region_abbr_lwrc, target_month, chosen_day, run_time)
-        print(f"\n✅ Evaluation completed for individual models on {chosen_day_str} at run_time {run_time} in {region}")
+        evaluate_model_predictions(region, region_abbr_caps, region_abbr_lwrc, target_month, chosen_day, run_time_hr)
+        print(f"\n✅ Evaluation completed for individual models on {chosen_day_str} at run_time {run_time_hr} in {region}")
     except Exception as e:
-        print(f"⚠️ Error evaluating individual model predictions for run_time {run_time}: {e}")
+        print(f"⚠️ Error evaluating individual model predictions for run_time {run_time_hr}: {e}")
 
     try:
-        evaluate_full_day_prediction(region, region_abbr_caps, region_abbr_lwrc, target_month, chosen_day, run_time)
-        print(f"\n✅ Evaluation completed for full day on {chosen_day_str} at run_time {run_time} in {region}")
+        evaluate_full_day_prediction(region, region_abbr_caps, region_abbr_lwrc, target_month, chosen_day, run_time_hr)
+        print(f"\n✅ Evaluation completed for full day on {chosen_day_str} at run_time {run_time_hr} in {region}")
     except Exception as e:
-        print(f"⚠️ Error evaluating full day prediction for run_time {run_time}: {e}")
+        print(f"⚠️ Error evaluating full day prediction for run_time {run_time_hr}: {e}")
 
     
 

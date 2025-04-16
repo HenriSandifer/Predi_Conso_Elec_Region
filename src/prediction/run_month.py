@@ -1,4 +1,4 @@
-from prediction.run_day import run_all_for_day
+from run_day import run_all_for_day
 import calendar
 from datetime import datetime
 import argparse
