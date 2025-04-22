@@ -1,5 +1,4 @@
 import pandas as pd
-import pandas as pd
 
 def get_cons_API_inputs(region: str, start_dt: pd.Timestamp, end_dt: pd.Timestamp):
 
