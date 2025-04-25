@@ -56,8 +56,14 @@ def regional_temperature_prediction(region_name):
     wdata_resampled = (
         df_avg.groupby("Région", group_keys=False)
         .resample("15min")
-        .interpolate(method="linear")
+        .mean()
+        .infer_objects(copy=False)
     )
+
+    # Interpolate only numeric columns
+    numeric_cols = wdata_resampled.select_dtypes(include="number").columns
+    wdata_resampled[numeric_cols] = wdata_resampled[numeric_cols].interpolate(method="linear")
+    
     wdata_resampled.reset_index(inplace=True)
     wdata_resampled["Région"] = wdata_resampled["Région"].ffill()
 

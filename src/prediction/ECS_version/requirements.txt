@@ -1,0 +1,6 @@
+boto3
+pandas
+vacances_scolaires_france
+numpy
+mlflow
+scikit-learn

@@ -1,6 +1,6 @@
 import sys
 import time
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 print(f"🛠️ Runtime argument passed: {sys.argv}")
 from src.run_update_cons_data import run_consumption_update
 from src.run_update_temperature_forecast import run_temperature_forecast_update
@@ -23,7 +23,8 @@ def run_all(run_time_pstr, max_retries=3, delay=300):
                 sys.exit(1)
 
 def infer_run_time():
-    hour = datetime.now(datetime.timezone.utc+2).hour
+    now = datetime.now(timezone.utc) + timedelta(hours=2)
+    hour = now.hour
     if hour < 6:
         return "02"
     elif hour < 12:
