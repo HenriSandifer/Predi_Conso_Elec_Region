@@ -1,5 +1,5 @@
-from src.plotting.func_plot_pred_only import plot_pred_only
-from utils.dictionaries import (
+from func_plot_pred import plot_pred
+from dictionaries import (
     region_abbr_caps_dict,
     region_abbr_dict,
     run_time_dict)
@@ -7,14 +7,13 @@ import pandas as pd
 import argparse
 
 
-def run_plotting(region, chosen_day, run_time):
+def run_plot_pred(region, chosen_day, run_time):
     """
-    Plots the full prediction made at any run time
+    Plots the full prediction made at a specific run_time
 
     """
       
-    plot_pred_only(
-        region,
+    plot_pred(
         region_abbr_caps=region_abbr_caps_dict[region],
         region_abbr_lwrc=region_abbr_dict[region],
         chosen_day=pd.to_datetime(chosen_day),    
@@ -32,7 +31,6 @@ if __name__ == "__main__":
     parser.add_argument("--time", type=str, required=True, help="Run time (e.g., '02:00:00')")
 
     args = parser.parse_args()
-
-    run_plotting(args.region, args.day, args.time)   
+    run_plot_pred(args.region, args.day, args.time)   
 
 

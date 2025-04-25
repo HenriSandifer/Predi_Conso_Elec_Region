@@ -51,6 +51,7 @@ def get_regional_consumption(region_name, last_dt):
     df = df[~df.duplicated(subset=["Datetime"], keep='first')]
     df.set_index("Datetime", inplace=True)
     df = df.infer_objects(copy=False)
+    
     # Interpolate only numeric columns
     numeric_cols = df.select_dtypes(include="number").columns
     df[numeric_cols] = df[numeric_cols].interpolate(method="linear")
