@@ -1,5 +1,5 @@
 import pandas as pd
-from src.new_data_acquisition.func_get_cons_data import get_regional_consumption
+from func_get_cons_data import get_regional_consumption
 from utils_s3 import read_csv_from_s3, write_csv_to_s3
 from dictionaries import region_abbr_dict
 

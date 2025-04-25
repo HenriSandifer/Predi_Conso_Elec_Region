@@ -17,15 +17,28 @@ s3 = boto3.client("s3")
 bucket_name = "predi-conso-elec-region"
 
 
-def evaluate_model_predictions(region, region_abbr_caps, region_abbr_lwrc, target_month, chosen_day, run_time_str):
+def evaluate_model_predictions(region, region_abbr_caps, region_abbr_lwrc, target_month, chosen_day, run_time_hr):
     """
     Evaluates all individual model predictions for a given region/run_time/day.
     Saves evaluation CSVs and metrics to S3.
     
     """
-    run_time_str = run_time_dict.get(run_time_str)
+    
     date_str = chosen_day.strftime("%Y-%m-%d")
-    run_time_pred_folder_key = f"Predictions/{region_abbr_caps}/{target_month}/{date_str}/{run_time_str}"
+    run_time_pred_folder_key = f"Predictions/{region_abbr_caps}/{target_month}/{date_str}/{run_time_hr}/pred"
+
+    # Define full-day evaluation file path and check if it exists
+    eval_filename_check = f"eval_full_{region_abbr_lwrc}_{date_str}_{run_time_hr}.csv"
+    run_time_eval_folder_key = f"Predictions/{region_abbr_caps}/{target_month}/{date_str}/{run_time_hr}/eval"
+    eval_key_check = f"{run_time_eval_folder_key}/{eval_filename_check}"
+
+    try:
+        s3.head_object(Bucket=bucket_name, Key=eval_key_check)
+        print(f"✋ Evaluation file already exists for {region} on {date_str} at {run_time_hr}, skipping.")
+        return  # Skip evaluation
+    except s3.exceptions.ClientError as e:
+        if e.response["Error"]["Code"] != "404":
+            raise  # Raise other unexpected errors
 
     # 1. List relevant prediction files in S3
     response = s3.list_objects_v2(Bucket=bucket_name, Prefix=run_time_pred_folder_key + "/")
@@ -67,7 +80,7 @@ def evaluate_model_predictions(region, region_abbr_caps, region_abbr_lwrc, targe
             continue
 
         # Get time window for this model
-        normalized_run_time = f"{int(run_time_str):02d}:00:00"
+        normalized_run_time = f"{int(run_time_hr):02d}:00:00"
         inputs = get_pred_eval_inputs(region, chosen_day.strftime("%Y-%m-%d"), model_name.upper(), normalized_run_time)
         start = inputs["first_row"]
         end = inputs["last_row"]
@@ -97,14 +110,14 @@ def evaluate_model_predictions(region, region_abbr_caps, region_abbr_lwrc, targe
         })
 
         # Save the evaluation dataframe
-        eval_filename = f"eval_{region_abbr_lwrc}_{model_name}_{date_str}_{run_time_str}.csv"
-        run_time_eval_folder_key = f"Predictions/{region_abbr_caps}/{target_month}/{date_str}/{run_time_str}/eval"
+        eval_filename = f"eval_{region_abbr_lwrc}_{model_name}_{date_str}_{run_time_hr}.csv"
+        run_time_eval_folder_key = f"Predictions/{region_abbr_caps}/{target_month}/{date_str}/{run_time_hr}/eval"
         eval_key = f"{run_time_eval_folder_key}/{eval_filename}"
         write_csv_to_s3(df_eval, eval_key)
 
     # Save evaluation metrics summary
     metrics_df = pd.DataFrame(metrics)
-    metrics_key = f"{run_time_eval_folder_key}/metrics_individual_models_{region_abbr_lwrc}_{date_str}_{run_time_str}.csv"
+    metrics_key = f"{run_time_eval_folder_key}/metrics_individual_models_{region_abbr_lwrc}_{date_str}_{run_time_hr}.csv"
     write_csv_to_s3(metrics_df, metrics_key)
 
     print(f"✅ Individual model metrics saved to: s3://{bucket_name}/{metrics_key}")

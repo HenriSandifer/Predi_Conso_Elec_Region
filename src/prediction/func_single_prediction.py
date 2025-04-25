@@ -2,7 +2,9 @@ import pandas as pd
 import numpy as np
 from datetime import timedelta
 from sklearn.preprocessing import PolynomialFeatures
-from dictionaries import lag_roll_features_by_model, run_time_temp_column_map
+from dictionaries import (lag_roll_features_by_model,
+                          run_time_temp_column_map,
+                          temp_column_priority)
 import mlflow
 import unicodedata
 
@@ -18,24 +20,24 @@ from utils_df_test_inputs import get_df_test_inputs
 S3_TEMP_FILENAME = "raw_data/temperature_forecast_data.csv"
 S3_CONS_FILENAME = "raw_data/real_cons_data.csv"
 
-def run_pipeline_for_model(region, chosen_day, run_time, model):
+def run_pipeline_for_model(region, chosen_day, run_time_hr, model):
     # Use your existing prep function
-    inputs = get_df_test_inputs(region, chosen_day, model, run_time)
+    inputs = get_df_test_inputs(region, chosen_day, model, run_time_hr)
 
     s3_folder_key = create_prediction_output_key(
     region_abbr_caps=inputs["region_caps"],
     target_month=inputs["chosen_day"].strftime("%Y-%m"),
     chosen_day=inputs["chosen_day"],
-    run_time_str=inputs["run_time_abbr"]
+    run_time_hr=inputs["run_time_abbr"]
     )
 
     region_lwrc = inputs["region_abbr"]                        
     date_str = inputs["chosen_day"].strftime("%m-%d")
-    run_time = inputs["run_time_abbr"]
+    run_time_hr = str(inputs["run_time_abbr"])
     model = inputs["model"]
 
     # From here on, everything that was in your notebook — reading data, feature engineering, model loading...
-    print(f"✅ Running pipeline for {region} on {chosen_day} at {run_time} using model {model}")
+    print(f"✅ Running pipeline for {region} on {chosen_day} at {run_time_hr} using model {model}")
     
     # Example: run ML pipeline steps (preprocessing, inference, saving output)
     # df_test = build_test_set(inputs)
@@ -154,14 +156,31 @@ def run_pipeline_for_model(region, chosen_day, run_time, model):
         (df_temp['Datetime'].dt.day.isin([d for m,d in temp_dates]))
     ].copy()
 
-    run_time_str=str(inputs["run_time_abbr"])
-    temp_col = run_time_temp_column_map.get(run_time_str)
-    if not temp_col:
-        raise ValueError(f'❌ No temperature column mapped for run_time: {run_time_str}')
-        
-    # Isolate data of the target day from the correct temperature column in temperature_forecast.csv
-    df_t_pred = df_temp[df_temp['Datetime'].dt.day == inputs["chosen_day"].day][["Datetime", temp_col]].copy()
-    df_t_pred.rename(columns={temp_col: "t"}, inplace=True)
+    # Get fallback priority list
+    fallback_cols = temp_column_priority.get(run_time_hr)
+    if not fallback_cols:
+        raise ValueError(f"❌ No temperature columns configured for run_time: {run_time_hr}")
+    
+    # Get only the D+1 data
+    df_temp_day = df_temp[df_temp["Datetime"].dt.day == inputs["chosen_day"].day].copy()
+
+    # Try columns in order
+    selected_temp_col = None
+    for col in fallback_cols:
+        if col in df_temp_day.columns and not df_temp_day[col].isna().any():
+            selected_temp_col = col
+            break
+        elif col in df_temp_day.columns:
+            print(f"🕳️ Found NaNs in {col}, checking next fallback...")
+
+    if selected_temp_col is None:
+        raise ValueError(f"❌ All fallback temperature columns contain NaNs for {date_str}")
+    
+    # Final dataframe
+    df_t_pred = df_temp_day[["Datetime", selected_temp_col]].copy()
+    df_t_pred.rename(columns={selected_temp_col: "t"}, inplace=True)
+
+    print(f"✅ Using temperature data from column: {selected_temp_col}")
 
     # Add the Holiday column
     df_test = add_holiday_column(df_test, df_cons) # 
@@ -209,7 +228,7 @@ def run_pipeline_for_model(region, chosen_day, run_time, model):
     df_test["Predicted_Consumption"] = xgb_model.predict(X_mixed_interactions_test_df)
 
     # Save results
-    filename = f"pred_cons_{region_lwrc}_{model}_{run_time}_{date_str}_v{model_version}.csv"
+    filename = f"pred_cons_{region_lwrc}_{model}_{run_time_hr}_{date_str}_v{model_version}.csv"
     s3_key = f"{s3_folder_key}/{filename}"
     write_csv_to_s3(df_test, s3_key)
-    print(f"✅ Added single model prediction for {region_lwrc} run_time {run_time} on {chosen_day} to S3.")
+    print(f"✅ Added single model prediction for {region_lwrc} run_time {run_time_hr} on {chosen_day} to S3.")

@@ -62,12 +62,13 @@ def apply_lag_roll_features(df_test, cons_df, inputs):
             lagged_timestamps = df_test["Datetime"] - timedelta(hours=lag_hours)  # or use seconds * multiplier
             df_filtered = cons_df[cons_df["Datetime"].isin(lagged_timestamps)]
             df_test[feature] = df_filtered["Consommation (MW)"].values
+            
         
 
     return df_test
 
 
-def create_prediction_output_key(region_abbr_caps, target_month, chosen_day, run_time_str):
+def create_prediction_output_key(region_abbr_caps, target_month, chosen_day, run_time_hr):
     """
     Generates an S3 key prefix like:
     Predictions/REGION/MONTH/YYYY-MM-DD/HH:MM/
@@ -75,7 +76,7 @@ def create_prediction_output_key(region_abbr_caps, target_month, chosen_day, run
     """
     base_dir = "Predictions"
     date_folder = pd.to_datetime(chosen_day).strftime("%Y-%m-%d")  # e.g., 2025-03-12
-    run_time_folder = str(run_time_str)  # e.g., "02:00"
+    run_time_folder = str(run_time_hr)
     month_folder = str(target_month)
     
     return f"{base_dir}/{region_abbr_caps}/{month_folder}/{date_folder}/{run_time_folder}/pred"

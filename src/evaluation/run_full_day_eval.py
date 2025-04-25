@@ -23,18 +23,18 @@ def run_prediction_evaluation(region, chosen_day):
 
     run_times = ["2", "8", "14", "20"]
 
-    for run_time in run_times:
-        print(f"🔄 Evaluating predictions for run_time: {run_time}")
+    for run_time_hr in run_times:
+        print(f"🔄 Evaluating predictions for run_time: {run_time_hr}")
         
         try:
-            evaluate_model_predictions(region, region_abbr_caps, region_abbr_lwrc, target_month, chosen_day, run_time)
+            evaluate_model_predictions(region, region_abbr_caps, region_abbr_lwrc, target_month, chosen_day, run_time_hr)
         except Exception as e:
-            print(f"⚠️ Error evaluating individual model predictions for {run_time}: {e}")
+            print(f"⚠️ Error evaluating individual model predictions for {run_time_hr}: {e}")
 
         try:
-            evaluate_full_day_prediction(region, region_abbr_caps, region_abbr_lwrc, target_month, chosen_day, run_time)
+            evaluate_full_day_prediction(region, region_abbr_caps, region_abbr_lwrc, target_month, chosen_day, run_time_hr)
         except Exception as e:
-            print(f"⚠️ Error evaluating full day prediction for {run_time}: {e}")
+            print(f"⚠️ Error evaluating full day prediction for {run_time_hr}: {e}")
 
     print(f"\n✅ Evaluation completed for all run_times on {chosen_day}")      
 

@@ -8,9 +8,30 @@ print(df_temp["Datetime"].min(), "→", df_temp["Datetime"].max())
 
 df_temp["Datetime"] = pd.to_datetime(df_temp["Datetime"])
 
+# Basic check (limited rows) for values for all columns within timeframe
 df_zoom = df_temp[
-    (df_temp["Datetime"] >= "2025-04-15 00:00:00") &
-    (df_temp["Datetime"] <= "2025-04-15 02:00:00") &
-    (df_temp["Région"] == "Auvergne-Rhône-Alpes")
+    (df_temp["Datetime"] >= "2025-04-07 00:00:00") &
+    (df_temp["Datetime"] <= "2025-04-07 23:45:00") &
+    (df_temp["Région"] == "Occitanie")
 ]
-print(df_zoom[["Datetime", "Région", "hist_t", "temp_02", "temp_08"]])
+
+# print(df_zoom[["Datetime", "Région", "hist_t", "temp_02", "temp_08"]])
+
+# Set max rows
+with pd.option_context("display.max_rows", None, "display.max_columns", None):
+    print(df_zoom[["Datetime", "Région", "hist_t", "temp_02", "temp_08"]])
+
+"""# See NaN values within a specific column and a specific timerange
+
+nan_zoom = df_temp[
+    (df_temp["Datetime"] >= "2025-04-07 00:00:00") &
+    (df_temp["Datetime"] <= "2025-04-08 03:00:00") &
+    (df_temp["Région"] == "Occitanie") &
+    (df_temp["temp_02"].isna())
+]
+print(nan_zoom[["Datetime", "Région", "temp_02"]])"""
+
+"""# Get the datetimes with NaNs
+
+nan_times = df_zoom[df_zoom["temp_02"].isna()]["Datetime"]
+print(nan_times.tolist())"""

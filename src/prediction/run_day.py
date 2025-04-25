@@ -1,5 +1,5 @@
-from prediction.run_all_models_for_time import run_all_models_for_time
-from utils.dictionaries import run_time_dict
+from run_all_models_for_time import run_all_models_for_time
+from dictionaries import run_time_dict
 import argparse
 
 

@@ -5,7 +5,7 @@ from datetime import datetime
 import argparse
 from utils.dictionaries import region_abbr_caps_dict, region_abbr_dict
 
-def aggregate_all_metrics(region_abbr_caps, target_month, region_abbr_lwrc):
+def aggregate_monthly_metrics(region_abbr_caps, target_month, region_abbr_lwrc):
     """
     Description
     
@@ -61,6 +61,6 @@ if __name__ == "__main__":
     region_abbr_caps = region_abbr_caps_dict[args.region]
     target_month = args.month
 
-    aggregate_all_metrics(region_abbr_caps, target_month, region_abbr_lwrc)
+    aggregate_monthly_metrics(region_abbr_caps, target_month, region_abbr_lwrc)
 
     

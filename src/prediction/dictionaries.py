@@ -37,10 +37,10 @@ region_abbr_dict = {
     }
 
 run_time_dict = {
-        "02:00:00": 2,
-        "08:00:00": 8,
-        "14:00:00": 14,
-        "20:00:00": 20
+        "02:00:00": "2",
+        "08:00:00": "8",
+        "14:00:00": "14",
+        "20:00:00": "20"
     }
 
 run_time_temp_column_map = {
@@ -53,6 +53,14 @@ run_time_temp_column_map = {
         "14": "temp_14",
         "20": "temp_20"
 }
+
+temp_column_priority = {
+    "2": ["temp_02", "temp_20", "temp_14", "temp_08", "hist_t"],
+    "8": ["temp_08", "temp_02", "temp_20", "temp_14", "hist_t"],
+    "14": ["temp_14", "temp_08", "temp_02", "temp_20", "hist_t"],
+    "20": ["temp_20", "temp_14", "temp_08", "temp_02", "hist_t"]
+}
+
 
 holiday_zones = {
     "Auvergne-Rhône-Alpes": "A",
