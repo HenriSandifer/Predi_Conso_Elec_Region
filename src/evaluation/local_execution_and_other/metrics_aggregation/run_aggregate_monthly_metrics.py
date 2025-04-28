@@ -5,7 +5,7 @@ from func_aggregate_monthly_metrics import aggregate_monthly_metrics
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--region", required=True)
-    parser.add_argument("--month", required=True)
+    parser.add_argument("--month", required=True, help="eg. 2025-04")
     args = parser.parse_args()
 
     region_abbr_caps = region_abbr_caps_dict[args.region]
