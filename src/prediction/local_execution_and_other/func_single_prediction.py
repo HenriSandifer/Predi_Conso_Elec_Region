@@ -53,10 +53,6 @@ def run_pipeline_for_model(region, chosen_day, run_time_hr, model):
     df_cons["Région"] = df_cons["Région"].apply(lambda x: unicodedata.normalize("NFC", x))
     df_cons = df_cons[df_cons["Région"] == region].copy()
     
-    # Setting to datetime
-    df_cons["Datetime"] = pd.to_datetime(df_cons["Datetime"], utc=True)
-    df_cons["Datetime"] = pd.to_datetime(df_cons["Datetime"]).dt.tz_convert("Europe/Paris").dt.tz_localize(None)
-    
     # FEATURE ENGINEERING WITH TIME MARKERS
     df_cons['DayOfWeek'] = df_cons['Datetime'].dt.weekday
     df_cons['IsWeekend'] = df_cons['DayOfWeek'].isin([5, 6])  # Saturday and Sunday are weekend
@@ -146,10 +142,6 @@ def run_pipeline_for_model(region, chosen_day, run_time_hr, model):
     df_temp["Région"] = df_temp["Région"].apply(lambda x: unicodedata.normalize("NFC", x))
     df_temp = df_temp[df_temp["Région"] == region].copy()
 
-    # Setting to datetime
-    df_temp["Datetime"] = pd.to_datetime(df_temp["Datetime"], utc=True)
-    df_temp["Datetime"] = pd.to_datetime(df_temp["Datetime"]).dt.tz_convert("Europe/Paris").dt.tz_localize(None)
-   
     df_temp = df_temp[
         (df_temp['Datetime'].dt.year == inputs["chosen_day"].year) &
         (df_temp['Datetime'].dt.month.isin([m for m,d in temp_dates])) &
@@ -163,7 +155,9 @@ def run_pipeline_for_model(region, chosen_day, run_time_hr, model):
     
     # Get only the D+1 data
     df_temp_day = df_temp[df_temp["Datetime"].dt.day == inputs["chosen_day"].day].copy()
-
+    print(f"df_temp_day len is : {len(df_temp_day)}")
+    print(f"df_temp_day looks like : {df_temp_day.describe}")
+    
     # Try columns in order
     selected_temp_col = None
     for col in fallback_cols:
@@ -179,6 +173,7 @@ def run_pipeline_for_model(region, chosen_day, run_time_hr, model):
     # Final dataframe
     df_t_pred = df_temp_day[["Datetime", selected_temp_col]].copy()
     print(f"df_t_pred len is : {len(df_t_pred)}")
+    print(f"df_t_pred looks like : {df_t_pred.describe}")
     df_t_pred.rename(columns={selected_temp_col: "t"}, inplace=True)
 
     print(f"✅ Using temperature data from column: {selected_temp_col}")
@@ -211,6 +206,10 @@ def run_pipeline_for_model(region, chosen_day, run_time_hr, model):
 
     # Prepare D+1 test data in the same way
     X_mixed_test = df_test[all_features]
+    nan_cells = [(idx, col) for idx, row in X_mixed_test.iterrows() for col in row.index if pd.isna(row[col])]
+    print("🔍 NaNs detected at the following (timestamp, column) locations:")
+    for timestamp, col in nan_cells:
+        print(f"  → {timestamp} × {col}")
     X_mixed_interactions_test = poly.fit_transform(X_mixed_test)
 
     X_mixed_interactions_test_df = pd.DataFrame(

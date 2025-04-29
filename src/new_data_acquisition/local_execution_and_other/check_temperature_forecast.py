@@ -10,8 +10,8 @@ df_temp["Datetime"] = pd.to_datetime(df_temp["Datetime"])
 
 # Basic check (limited rows) for values for all columns within timeframe
 df_zoom = df_temp[
-    (df_temp["Datetime"] >= "2025-04-26 00:00:00") &
-    (df_temp["Datetime"] <= "2025-04-26 23:45:00") &
+    (df_temp["Datetime"] >= "2025-04-07 00:00:00") &
+    (df_temp["Datetime"] <= "2025-04-08 12:00:00") &
     (df_temp["Région"] == "Occitanie")
 ]
 

@@ -9,9 +9,6 @@ S3_FILENAME = "raw_data/real_cons_data.csv"
 # Step 1: Load existing data
 try:
     df_existing = read_csv_from_s3(S3_FILENAME)
-    df_existing["Datetime"] = pd.to_datetime(df_existing["Datetime"], utc=True)\
-                                     .dt.tz_convert("Europe/Paris")\
-                                     .dt.tz_localize(None)
     print("📂 Loaded existing consumption data from S3.")
 except Exception as e:
     print(f"⚠️ Could not load existing data: {e}")
@@ -33,10 +30,7 @@ all_new_data = []
 for region in region_abbr_dict.keys():
     print(f"📥 Fetching consumption for {region}...")
     df_new = get_regional_consumption(region, last_dt)
-    df_new["Datetime"] = pd.to_datetime(df_new["Datetime"], utc=True)\
-                                     .dt.tz_convert("Europe/Paris")\
-                                     .dt.tz_localize(None)
-    
+        
     if not df_new.empty:
         df_new = df_new[df_new["Datetime"] > last_dt]
         if not df_new.empty:

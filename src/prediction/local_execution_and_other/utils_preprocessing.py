@@ -40,9 +40,6 @@ def apply_lag_roll_features(df_test, cons_df, inputs):
 
     lag_roll_features = lag_roll_features_by_model.get(model, [])
 
-    # Ensure timezone-neutral
-    cons_df["Datetime"] = pd.to_datetime(cons_df["Datetime"]).dt.tz_localize(None)
-
     for feature in lag_roll_features:
         if "rolling" in feature:
             # Compute rolling feature globally before slicing
@@ -54,7 +51,7 @@ def apply_lag_roll_features(df_test, cons_df, inputs):
             dt_end = last_row - deltatime
             df_filtered = cons_df[(cons_df['Datetime'] >= dt_start) & (cons_df['Datetime'] <= dt_end)]
             print(f"cons_df len is : {len(cons_df)}")
-            print(f"dt_start is : {len(dt_start)}")
+            print(f"dt_start is : {dt_start}")
             print(f"dt_end is : {dt_end}")
             print(f"df_filtered len is : {len(df_filtered)}")
             df_test[feature] = df_filtered[feature].values
@@ -67,7 +64,9 @@ def apply_lag_roll_features(df_test, cons_df, inputs):
             df_filtered = cons_df[cons_df["Datetime"].isin(lagged_timestamps)]
             print(f"cons_df len is : {len(cons_df)}")
             print(f"lagged_timestamps len is : {len(lagged_timestamps)}")
+            print(f"lagged_timestamps looks like : {lagged_timestamps.describe}")
             print(f"df_filtered len is : {len(df_filtered)}")
+            print(f"df_filtered looks like : {df_filtered.describe}")
             df_test[feature] = df_filtered["Consommation (MW)"].values
             
         
