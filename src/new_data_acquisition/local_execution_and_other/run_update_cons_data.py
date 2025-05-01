@@ -10,6 +10,7 @@ S3_FILENAME = "raw_data/real_cons_data.csv"
 try:
     df_existing = read_csv_from_s3(S3_FILENAME)
     print("📂 Loaded existing consumption data from S3.")
+    df_existing["Datetime"] = pd.to_datetime(df_existing["Datetime"])
 except Exception as e:
     print(f"⚠️ Could not load existing data: {e}")
     df_existing = pd.DataFrame(columns=["Datetime", "Consommation (MW)", "Région"])
@@ -22,10 +23,7 @@ else:
 
 print(f"🔍 Fetching new data from after: {last_dt}")
 
-# Step 3: Get today's date as target_day
-target_day = pd.to_datetime("today").normalize()
-
-# Step 4: Fetch new data from API
+# Step 3: Fetch new data from API
 all_new_data = []
 for region in region_abbr_dict.keys():
     print(f"📥 Fetching consumption for {region}...")
@@ -36,7 +34,7 @@ for region in region_abbr_dict.keys():
         if not df_new.empty:
             all_new_data.append(df_new)
 
-# Step 5: Combine and append
+# Step 4: Combine and append
 if all_new_data:
     df_new_combined = pd.concat(all_new_data).reset_index(drop=True)
     df_updated = pd.concat([df_existing, df_new_combined]).drop_duplicates(subset=["Datetime", "Région"])
@@ -46,6 +44,6 @@ else:
     print("✅ No new data found.")
     df_updated = df_existing
 
-# Step 6: Upload back to S3
+# Step 5: Upload back to S3
 write_csv_to_s3(df_updated, S3_FILENAME)
 print("✅ Updated consumption data saved to S3.")

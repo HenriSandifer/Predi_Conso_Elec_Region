@@ -7,7 +7,7 @@ import pandas as pd
 import argparse
 
 
-def run_plot_pred(region, chosen_day, run_time):
+def run_plot_pred(region, chosen_day, run_time_hms):
     """
     Plots the full prediction made at a specific run_time
 
@@ -18,7 +18,7 @@ def run_plot_pred(region, chosen_day, run_time):
         region_abbr_lwrc=region_abbr_dict[region],
         chosen_day=pd.to_datetime(chosen_day),    
         target_month=pd.to_datetime(chosen_day).strftime("%Y-%m"),    
-        run_time_str=run_time_dict[run_time],    
+        run_time_hr=run_time_dict[run_time_hms],    
         )    
        
 

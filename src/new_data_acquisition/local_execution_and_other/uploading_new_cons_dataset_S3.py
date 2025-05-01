@@ -34,12 +34,15 @@ df = pd.read_csv(LOCAL_FILE_PATH)
 # Step 3: Preprocess Datetime column
 df["Datetime"] = pd.to_datetime(df["Datetime"])
 df.sort_values(["Région", "Datetime"], inplace=True)
-df = df[~df.duplicated(subset=["Datetime"], keep='first')]
 
 # Step 4: Resample and interpolate for each region separately
 resampled_dfs = []
 
 for region, group in df.groupby("Région"):
+
+    # Remove duplicate timestamps inside the Region group
+    group = group.drop_duplicates(subset=["Datetime"], keep='first')
+    
     group = group.set_index("Datetime")
 
     # Resample at 15-minute intervals
@@ -55,7 +58,7 @@ for region, group in df.groupby("Région"):
         .interpolate(method="linear")
     )
 
-    resampled_dfs.append(group_resampled.reset_index())
+    resampled_dfs.append(group_resampled.reset_index())   
 
 # Step 5: Concatenate all regions back together
 df_resampled = pd.concat(resampled_dfs).sort_values(["Datetime", "Région"])
@@ -63,3 +66,4 @@ df_resampled = pd.concat(resampled_dfs).sort_values(["Datetime", "Région"])
 # Step 6: Upload the cleaned data to S3
 write_csv_to_s3(df_resampled, SOURCE_KEY)
 print("✅ New resampled and interpolated data saved to S3.")
+

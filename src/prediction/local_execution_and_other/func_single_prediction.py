@@ -48,10 +48,13 @@ def run_pipeline_for_model(region, chosen_day, run_time_hr, model):
 
     # Defining df_cons
     df_cons = read_csv_from_s3(S3_CONS_FILENAME)
+    print(f"df_cons len right after CSV read is : {len(df_cons)}")
 
     # Normalize Région column
     df_cons["Région"] = df_cons["Région"].apply(lambda x: unicodedata.normalize("NFC", x))
     df_cons = df_cons[df_cons["Région"] == region].copy()
+    df_cons["Datetime"] = pd.to_datetime(df_cons["Datetime"])
+    print(f"df_cons len right after filtering for region is : {len(df_cons)} ")
     
     # FEATURE ENGINEERING WITH TIME MARKERS
     df_cons['DayOfWeek'] = df_cons['Datetime'].dt.weekday
@@ -141,6 +144,7 @@ def run_pipeline_for_model(region, chosen_day, run_time_hr, model):
     # Normalize Région column
     df_temp["Région"] = df_temp["Région"].apply(lambda x: unicodedata.normalize("NFC", x))
     df_temp = df_temp[df_temp["Région"] == region].copy()
+    df_temp["Datetime"] = pd.to_datetime(df_temp["Datetime"])
 
     df_temp = df_temp[
         (df_temp['Datetime'].dt.year == inputs["chosen_day"].year) &
@@ -198,6 +202,7 @@ def run_pipeline_for_model(region, chosen_day, run_time_hr, model):
     df_test = add_time_features(df_test)
     df_test = df_test.merge(df_t_pred[["Datetime", "t"]], on="Datetime", how="left")
     print(f"df_test before adding lag_roll_features is : {len(df_test)}")
+    print(f"df_cons len before calling lag_roll features is : {len(df_cons)}")
     df_test = apply_lag_roll_features(df_test, df_cons, inputs)
     print(f"df_test after adding lag_roll_features is : {len(df_test)}")
 

@@ -3,4 +3,5 @@ pandas
 vacances_scolaires_france
 numpy
 mlflow
+xgboost
 scikit-learn

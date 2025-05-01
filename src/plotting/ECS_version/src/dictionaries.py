@@ -89,7 +89,7 @@ roll_feature_multipliers = {
     "rolling_12h": 48, 
     "rolling_24h": 96,
     "rolling_48h": 192,
-    "rolling_72h": 288,
+    "rolling_72h": 288
 }
 
 prediction_timeframes = {

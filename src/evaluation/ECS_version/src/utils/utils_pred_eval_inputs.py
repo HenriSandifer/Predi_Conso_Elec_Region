@@ -1,6 +1,6 @@
 import pandas as pd
 from datetime import datetime
-from dictionaries import prediction_timeframes
+from src.utils.dictionaries import prediction_timeframes
 
 def get_pred_eval_inputs(region: str, chosen_day_input: str, model: str, run_time: str):
        

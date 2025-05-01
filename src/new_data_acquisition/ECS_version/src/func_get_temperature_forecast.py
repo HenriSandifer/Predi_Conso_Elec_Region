@@ -60,6 +60,9 @@ def regional_temperature_prediction(region_name):
         .infer_objects(copy=False)
     )
 
+    # Timezone
+    wdata_resampled["Datetime"] = wdata_resampled["Datetime"].dt.tz_convert("Europe/Paris").dt.tz_localize(None)
+
     # Interpolate only numeric columns
     numeric_cols = wdata_resampled.select_dtypes(include="number").columns
     wdata_resampled[numeric_cols] = wdata_resampled[numeric_cols].interpolate(method="linear")

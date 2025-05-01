@@ -69,7 +69,7 @@ def get_regional_consumption(region_name, last_dt):
     cdata_resampled.reset_index(inplace=True)
     cdata_resampled["Région"] = cdata_resampled["Région"].ffill()
 
-    return df
+    return cdata_resampled
 
 
 

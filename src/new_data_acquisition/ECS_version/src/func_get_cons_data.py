@@ -38,29 +38,35 @@ def get_regional_consumption(region_name, last_dt):
         print(f"⚠️ No data found for region {region_name}")
         return df
 
-    df["Datetime"] = pd.to_datetime(df["date_heure"])
+    df["Datetime"] = pd.to_datetime(df["date_heure"], utc=True)\
+                                     .dt.tz_convert("Europe/Paris")\
+                                     .dt.tz_localize(None)
+    
     df = df[["Datetime", "consommation", "libelle_region"]].copy()
     df.rename(columns={"libelle_region": "Région", "consommation": "Consommation (MW)"}, inplace=True)
 
     df.sort_values("Datetime", inplace=True)
 
-    now_paris = pd.Timestamp("now", tz="Europe/Paris")
+    now_paris = pd.Timestamp("now", tz="Europe/Paris").tz_localize(None)
     df = df[df["Datetime"] <= now_paris]
 
-    df["Datetime"] = df["Datetime"].dt.tz_convert("Europe/Paris")
     df = df[~df.duplicated(subset=["Datetime"], keep='first')]
-    df.set_index("Datetime", inplace=True)
-    df = df.infer_objects(copy=False)
     
+    # Resample to 15-minute intervals and interpolate
+    df.set_index("Datetime", inplace=True)
+    cdata_resampled = (
+        df.groupby("Région", group_keys=False)
+        .resample("15min")
+        .mean()
+        .infer_objects(copy=False)
+    )
+
     # Interpolate only numeric columns
-    numeric_cols = df.select_dtypes(include="number").columns
-    df[numeric_cols] = df[numeric_cols].interpolate(method="linear")
+    numeric_cols = cdata_resampled.select_dtypes(include="number").columns
+    cdata_resampled[numeric_cols] = cdata_resampled[numeric_cols].interpolate(method="linear")
 
-    df.reset_index(inplace=True)
-    df["Région"] = df["Région"].ffill()
+    # Forward fill regions
+    cdata_resampled.reset_index(inplace=True)
+    cdata_resampled["Région"] = cdata_resampled["Région"].ffill()
 
-    return df
-
-
-
-
+    return cdata_resampled

@@ -3,7 +3,6 @@ import calendar
 from datetime import datetime
 import argparse
 
-
 def run_all_for_month(func_region, target_month, target_year):
     
     # Convert month name to number

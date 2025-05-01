@@ -36,7 +36,6 @@ def run_temperature_forecast_update(run_time_pstr):
     # Step 3: Merge new data into column like temp_02, temp_08, etc.
     run_time_column = f"temp_{run_time_pstr}"
 
-    df_new_forecast["Datetime"] = df_new_forecast["Datetime"].dt.tz_convert("Europe/Paris").dt.tz_localize(None)
     df_new_subset = df_new_forecast[["Datetime", "Région", "t"]].copy()
     df_new_subset = df_new_subset[df_new_subset["Datetime"] >= ow_line]
 

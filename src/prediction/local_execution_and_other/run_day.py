@@ -2,7 +2,6 @@ from run_all_models_for_time import run_all_models_for_time
 from dictionaries import run_time_dict
 import argparse
 
-
 def run_all_for_day(region, chosen_day):
     
     # === Loop through run times ===

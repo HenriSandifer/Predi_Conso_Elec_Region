@@ -52,8 +52,7 @@ def run_pipeline_for_model(region, chosen_day, run_time_hr, model):
     df_cons = df_cons[df_cons["Région"] == region].copy()
     
     # Setting to datetime
-    df_cons["Datetime"] = pd.to_datetime(df_cons["Datetime"], utc=True)
-    df_cons["Datetime"] = pd.to_datetime(df_cons["Datetime"]).dt.tz_convert("Europe/Paris").dt.tz_localize(None)
+    df_cons["Datetime"] = pd.to_datetime(df_cons["Datetime"])
     
     # FEATURE ENGINEERING WITH TIME MARKERS
     df_cons['DayOfWeek'] = df_cons['Datetime'].dt.weekday
@@ -145,9 +144,8 @@ def run_pipeline_for_model(region, chosen_day, run_time_hr, model):
     df_temp = df_temp[df_temp["Région"] == region].copy()
 
     # Setting to datetime
-    df_temp["Datetime"] = pd.to_datetime(df_temp["Datetime"], utc=True)
-    df_temp["Datetime"] = pd.to_datetime(df_temp["Datetime"]).dt.tz_convert("Europe/Paris").dt.tz_localize(None)
-   
+    df_temp["Datetime"] = pd.to_datetime(df_temp["Datetime"])
+
     df_temp = df_temp[
         (df_temp['Datetime'].dt.year == inputs["chosen_day"].year) &
         (df_temp['Datetime'].dt.month.isin([m for m,d in temp_dates])) &

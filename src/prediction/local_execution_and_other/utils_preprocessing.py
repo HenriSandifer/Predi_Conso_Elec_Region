@@ -5,13 +5,12 @@ from dictionaries import (holiday_zones,
                           lag_feature_multipliers_by_model,
                           roll_feature_multipliers)
 from vacances_scolaires_france import SchoolHolidayDates
-import pandas as pd
 
-def add_holiday_column(df_test, cons_df):
+def add_holiday_column(df_test, df_cons):
     # 1. Map regions to zones
     df_test = df_test.copy()  # Work on a copy to avoid modifying the original
     
-    df_test["Zone"] = cons_df["Région"].map(holiday_zones)
+    df_test["Zone"] = df_cons["Région"].map(holiday_zones)
     
     # 2. Handle missing zones
     df_test["Zone"] = df_test["Zone"].fillna("Unknown")
@@ -32,7 +31,7 @@ def add_holiday_column(df_test, cons_df):
     return df_test.merge(date_zones, on=["Datetime", "Zone"])
 
 
-def apply_lag_roll_features(df_test, cons_df, inputs):
+def apply_lag_roll_features(df_test, df_cons, inputs):
     deltatime = inputs["deltatime"]
     first_row = inputs["first_row"]
     last_row = inputs["last_row"]
@@ -44,13 +43,13 @@ def apply_lag_roll_features(df_test, cons_df, inputs):
         if "rolling" in feature:
             # Compute rolling feature globally before slicing
             window = roll_feature_multipliers[feature]
-            cons_df[feature] = cons_df["Consommation (MW)"].rolling(window=window).mean()
+            df_cons[feature] = df_cons["Consommation (MW)"].rolling(window=window).mean()
 
             # Match datetime with deltatime shift
             dt_start = first_row - deltatime
             dt_end = last_row - deltatime
-            df_filtered = cons_df[(cons_df['Datetime'] >= dt_start) & (cons_df['Datetime'] <= dt_end)]
-            print(f"cons_df len is : {len(cons_df)}")
+            df_filtered = df_cons[(df_cons['Datetime'] >= dt_start) & (df_cons['Datetime'] <= dt_end)]
+            print(f"df_cons len is : {len(df_cons)}")
             print(f"dt_start is : {dt_start}")
             print(f"dt_end is : {dt_end}")
             print(f"df_filtered len is : {len(df_filtered)}")
@@ -61,16 +60,14 @@ def apply_lag_roll_features(df_test, cons_df, inputs):
             model_lag_dict = lag_feature_multipliers_by_model.get(model, {})
             lag_hours = model_lag_dict.get(feature, ())
             lagged_timestamps = df_test["Datetime"] - timedelta(hours=lag_hours)  # or use seconds * multiplier
-            df_filtered = cons_df[cons_df["Datetime"].isin(lagged_timestamps)]
-            print(f"cons_df len is : {len(cons_df)}")
+            df_filtered = df_cons[df_cons["Datetime"].isin(lagged_timestamps)]
+            print(f"df_cons len is : {len(df_cons)}")
             print(f"lagged_timestamps len is : {len(lagged_timestamps)}")
             print(f"lagged_timestamps looks like : {lagged_timestamps.describe}")
             print(f"df_filtered len is : {len(df_filtered)}")
             print(f"df_filtered looks like : {df_filtered.describe}")
             df_test[feature] = df_filtered["Consommation (MW)"].values
             
-        
-
     return df_test
 
 
