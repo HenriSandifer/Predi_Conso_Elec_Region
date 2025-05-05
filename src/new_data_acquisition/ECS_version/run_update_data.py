@@ -9,7 +9,7 @@ def run_all(run_time_pstr, max_retries=50, delay=60):
     for attempt in range(1, max_retries + 1):
         try:
             print(f"⚡ Attempt {attempt} to update data...")
-            run_consumption_update(run_time_pstr, max_retries)
+            run_consumption_update(run_time_pstr=run_time_pstr, max_retries=max_retries)
             run_temperature_forecast_update(run_time_pstr)
             print("✅ Data update successful.")
             return

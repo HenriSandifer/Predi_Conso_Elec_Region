@@ -36,6 +36,7 @@ def get_regional_consumption(region_name, last_dt):
 
     if df.empty:
         print(f"⚠️ No data found for region {region_name}")
+        print(f"📝 Logging failure ...")
         return df
 
     df["Datetime"] = pd.to_datetime(df["date_heure"], utc=True)\

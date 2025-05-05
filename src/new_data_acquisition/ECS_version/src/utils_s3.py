@@ -31,3 +31,12 @@ def write_csv_to_s3(df, key):
         print(f"✅ File written to: s3://{S3_BUCKET}/{key}")
     except Exception as e:
         print(f"❌ Error writing to S3: s3://{S3_BUCKET}/{key}\n{e}")
+
+def append_csv_to_s3(new_df, key):
+    try:
+        existing_df = read_csv_from_s3(key)
+    except Exception:
+        existing_df = pd.DataFrame()
+
+    combined_df = pd.concat([existing_df, new_df], ignore_index=True)
+    write_csv_to_s3(combined_df, key)
