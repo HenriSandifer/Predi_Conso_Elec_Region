@@ -1,6 +1,6 @@
 import pandas as pd
 import plotly.express as px
-from utils_s3 import read_csv_from_s3, write_plot_to_s3
+from utils_s3 import read_csv_from_s3, write_html_plot_to_s3
 from dictionaries import run_time_dict
 
 # Constants
@@ -56,6 +56,6 @@ def plot_eval(region_abbr_caps, region_abbr_lwrc, target_month, chosen_day):
         # Save to S3 as interactive plot
         plot_filename = f"plot_eval_full_{region_abbr_lwrc}_{date_str}_{rt}.html"
         plot_key = f"{run_time_eval_folder_key}/{plot_filename}"
-        write_plot_to_s3(fig, plot_key)
+        write_html_plot_to_s3(fig, plot_key)
 
         print(f"✅ Plot saved for run_time {rt} to s3://{BUCKET_NAME}/{plot_key}")

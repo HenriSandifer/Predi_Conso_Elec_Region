@@ -8,7 +8,6 @@ from utils_preprocessing import create_prediction_output_key
 import pandas as pd
 import argparse
 import boto3
-import pandas as pd
 
 def run_all_models_for_time(region, chosen_day, run_time_hms):
     """

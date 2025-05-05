@@ -2,7 +2,7 @@ import pandas as pd
 import os
 import plotly.express as px
 import boto3
-from utils_s3 import read_csv_from_s3, write_plot_to_s3
+from utils_s3 import read_csv_from_s3, write_json_plot_to_s3
 import json
 
 s3 = boto3.client("s3")
@@ -28,7 +28,7 @@ def plot_pred(region_abbr_caps, region_abbr_lwrc, target_month, chosen_day, run_
     ]
    
     if not prediction_files:
-        print("⚠️ No full-day prediction found for run time {run_time_hr}.")
+        print(f"⚠️ No full-day prediction found for run time {run_time_hr}.")
         return
 
     # Assuming one full-day prediction fil per run_time
@@ -37,6 +37,7 @@ def plot_pred(region_abbr_caps, region_abbr_lwrc, target_month, chosen_day, run_
     df_pred["Datetime"] = pd.to_datetime(df_pred["Datetime"])
 
     # Plot using Plotly
+    print(f"Creating plot for region {region_abbr_caps} for {chosen_day} at runtime {run_time_hr}")
     fig = px.line(
         df_pred,
         x="Datetime",
@@ -55,6 +56,6 @@ def plot_pred(region_abbr_caps, region_abbr_lwrc, target_month, chosen_day, run_
     plot_filename = f"plot_full_pred_{region_abbr_lwrc}_{date_ymd}_{run_time_hr}.json"
     plot_key = f"{run_time_pred_folder_key}/{plot_filename}"
     plot_json = fig.to_json()
-    write_plot_to_s3(plot_json, plot_key, content_type="application/json")
+    write_json_plot_to_s3(plot_json, plot_key, content_type="application/json")
 
     print(f"✅ Saved full-day prediction plot to s3://{bucket_name}/{plot_key}")

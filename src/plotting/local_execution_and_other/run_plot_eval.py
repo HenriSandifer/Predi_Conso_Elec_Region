@@ -1,4 +1,4 @@
-from func_plot_eval import plot_eval
+from json_func_plot_eval import plot_eval
 from dictionaries import (
     region_abbr_caps_dict,
     region_abbr_dict

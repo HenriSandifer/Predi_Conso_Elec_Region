@@ -5,11 +5,11 @@ print(f"🛠️ Runtime argument passed: {sys.argv}")
 from src.run_update_cons_data import run_consumption_update
 from src.run_update_temperature_forecast import run_temperature_forecast_update
 
-def run_all(run_time_pstr, max_retries=3, delay=300):
+def run_all(run_time_pstr, max_retries=50, delay=60):
     for attempt in range(1, max_retries + 1):
         try:
             print(f"⚡ Attempt {attempt} to update data...")
-            run_consumption_update()
+            run_consumption_update(run_time_pstr, max_retries)
             run_temperature_forecast_update(run_time_pstr)
             print("✅ Data update successful.")
             return
@@ -36,7 +36,8 @@ def infer_run_time():
 
 if __name__ == "__main__":
     print("⚡ Starting data update job...")
-
+    print("🧪 sys.argv:", sys.argv)
+    
     run_time_pstr = sys.argv[1] if len(sys.argv) > 1 else infer_run_time()
     run_all(run_time_pstr)
 

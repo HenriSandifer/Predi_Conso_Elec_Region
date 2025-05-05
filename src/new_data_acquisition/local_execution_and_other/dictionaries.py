@@ -41,6 +41,17 @@ run_time_dict = {
         "20:00:00": 20
     }
 
+run_time_temp_column_map = {
+        "02:00:00": "temp_02",
+        "08:00:00": "temp_08",
+        "14:00:00": "temp_14",
+        "20:00:00": "temp_20",
+        "2": "temp_02",
+        "8": "temp_08",
+        "14": "temp_14",
+        "20": "temp_20"
+}
+
 holiday_zones = {
     "Auvergne-Rhône-Alpes": "A",
     "Bourgogne-Franche-Comté": "A",

@@ -3,14 +3,15 @@ import argparse
 from dictionaries import region_abbr_dict
 from func_get_temperature_forecast import regional_temperature_prediction
 from utils_s3 import read_csv_from_s3, write_csv_to_s3
+from dictionaries import run_time_temp_column_map
 
-def run_temperature_forecast_update(run_time_str):
+def run_temperature_forecast_update(run_time_hms):
     # Define target day (D0) and overwrite line (D+1 @ 00:00)
     today = pd.to_datetime("today").normalize()
     target_day = today
     ow_line = (target_day + pd.Timedelta(days=1)).normalize()
 
-    print(f"🕒 Running forecast update for run_time = {run_time_str} (D+1 starts at {ow_line})")
+    print(f"🕒 Running forecast update for run_time = {run_time_hms} (D+1 starts at {ow_line})")
 
     # Step 1: Fetch new forecasts
     all_new_temp_data = []
@@ -34,7 +35,8 @@ def run_temperature_forecast_update(run_time_str):
     df_existing["Datetime"] = pd.to_datetime(df_existing["Datetime"])
 
     # Step 3: Merge new data into column like temp_02, temp_08, etc.
-    run_time_column = f"temp_{run_time_str}"
+    col_name = run_time_temp_column_map.get(run_time_hms)
+    run_time_column = col_name
 
     df_new_subset = df_new_forecast[["Datetime", "Région", "t"]].copy()
     df_new_subset = df_new_subset[df_new_subset["Datetime"] >= ow_line]
@@ -60,6 +62,8 @@ def run_temperature_forecast_update(run_time_str):
 
     # Inject updated forecast into correct column
     df_existing.loc[df_new_subset.index, run_time_column] = df_new_subset["t"]
+
+    print(f"df_existing tail right before writing to csv : {df_existing.tail(30)}")
 
     # Reset index and save back to S3
     df_existing.reset_index(inplace=True)

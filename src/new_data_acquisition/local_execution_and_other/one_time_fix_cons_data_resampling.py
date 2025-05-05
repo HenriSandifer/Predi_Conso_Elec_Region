@@ -43,17 +43,18 @@ if df is not None and not df.empty:
         group = group.set_index("Datetime")
 
         # Resample at 15-minute intervals
-        group_resampled = group.resample("15T").asfreq()
+        group_resampled = group.resample("15min").asfreq()
 
         # Forward-fill the region name
         group_resampled["Région"] = region
 
         # Interpolate "Consommation (MW)" values
-        group_resampled["Consommation (MW)"] = (
-            group_resampled["Consommation (MW)"]
-            .infer_objects(copy=False)
-            .interpolate(method="linear")
-        )
+        if group_resampled["Consommation (MW)"].isna().any():
+            group_resampled["Consommation (MW)"] = (
+                group_resampled["Consommation (MW)"]
+                .infer_objects(copy=False)
+                .interpolate(method="linear")
+            )
 
         resampled_dfs.append(group_resampled.reset_index())
 

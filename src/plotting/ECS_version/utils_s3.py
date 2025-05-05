@@ -43,3 +43,4 @@ def write_plot_to_s3(plot_data, s3_key, content_type="application/json"):
         Body=plot_data,
         ContentType=content_type
     )
+

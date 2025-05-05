@@ -31,8 +31,9 @@ def infer_regions():
     return list(region_abbr_caps_dict.keys())
 
 if __name__ == "__main__":
-    print("⚡ Starting prediction job...")
-
+    print("⚙️ Starting prediction job...")
+    print("🧪 sys.argv:", sys.argv)
+    
     regions = infer_regions()
     day = infer_day()
     run_time_hms = sys.argv[1] if len(sys.argv) > 1 else infer_run_time()

@@ -42,7 +42,7 @@ def infer_regions():
 
 if __name__ == "__main__":
 
-    print("⚡ Starting data update job...")
+    print("⚙️ Starting prediction plotting job...")
 
     regions = infer_regions()
     chosen_day_ymd = infer_day()

@@ -51,26 +51,48 @@ def regional_temperature_prediction(region_name):
     df_avg = df_region_forecast.groupby("Datetime")["t"].mean().reset_index()
     df_avg["Région"] = region_name
 
-    # Resample to 15-minute intervals and interpolate
+    # Ensure Datetime is parsed correctly and sorted
+    df_avg["Datetime"] = pd.to_datetime(df_avg["Datetime"]).dt.tz_convert("Europe/Paris").dt.tz_localize(None)
+    df_avg.sort_values(["Région", "Datetime"], inplace=True)
+
+    print(f"df_avg head is : {df_avg.head()}")
+
+    # Set index before resampling
     df_avg.set_index("Datetime", inplace=True)
-    wdata_resampled = (
-        df_avg.groupby("Région", group_keys=False)
-        .resample("15min")
-        .mean()
-        .infer_objects(copy=False)
-    )
 
-    # Timezone
-    wdata_resampled["Datetime"] = wdata_resampled["Datetime"].dt.tz_convert("Europe/Paris").dt.tz_localize(None)
+    # List to hold each region’s resampled data
+    resampled_list = []
 
-    # Interpolate only numeric columns
-    numeric_cols = wdata_resampled.select_dtypes(include="number").columns
-    wdata_resampled[numeric_cols] = wdata_resampled[numeric_cols].interpolate(method="linear")
-    
-    wdata_resampled.reset_index(inplace=True)
-    wdata_resampled["Région"] = wdata_resampled["Région"].ffill()
+    # Process each region individually
+    for region, group in df_avg.groupby("Région"):
+                # Ensure no duplicate datetime values
+        group = group[~group.index.duplicated(keep='first')]
 
-    return wdata_resampled
+        # Create full datetime range for the region
+        full_index = pd.date_range(
+            start=group.index.min(), 
+            end=group.index.max(), 
+            freq="15min"
+        )
 
+        # Reindex to enforce presence of every 15-min timestamp
+        group_resampled = group.reindex(full_index)
 
+        # Interpolate numeric columns
+        numeric_cols = group.select_dtypes(include="number").columns
+        group_resampled[numeric_cols] = group_resampled[numeric_cols].interpolate(method="linear")
 
+        # Forward-fill the region name
+        group_resampled["Région"] = region
+
+        print(f"group_resampled head is : {group_resampled.head()}")
+
+        # Append to list
+        resampled_list.append(group_resampled)
+
+    # Combine all resampled data
+    df_final = pd.concat(resampled_list).reset_index().rename(columns={"index": "Datetime"})
+
+    print(f"df_final head is : {df_final.head()}")
+
+    return df_final

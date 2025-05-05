@@ -1,12 +1,10 @@
 import pandas as pd
+from datetime import datetime, timezone, timedelta
 from src.func_get_cons_data import get_regional_consumption
 from src.utils_s3 import read_csv_from_s3, write_csv_to_s3
 from src.dictionaries import region_abbr_dict
 
-print("🛠️ Running UPDATED 3 version of run_update_cons_data.py")
-
-
-def run_consumption_update():
+def run_consumption_update(run_time_pstr, max_retries):
 
     # Set AWS S3 path
     S3_FILENAME = "raw_data/real_cons_data.csv"

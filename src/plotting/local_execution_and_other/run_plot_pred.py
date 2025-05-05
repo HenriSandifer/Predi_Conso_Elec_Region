@@ -1,4 +1,4 @@
-from func_plot_pred import plot_pred
+from json_func_plot_pred import plot_pred
 from dictionaries import (
     region_abbr_caps_dict,
     region_abbr_dict,

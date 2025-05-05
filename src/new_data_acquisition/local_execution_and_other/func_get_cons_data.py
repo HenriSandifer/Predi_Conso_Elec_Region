@@ -47,30 +47,48 @@ def get_regional_consumption(region_name, last_dt):
 
     df.sort_values("Datetime", inplace=True)
 
-    now_paris = pd.Timestamp("now", tz="Europe/Paris")
+    now_paris = pd.Timestamp("now", tz="Europe/Paris").tz_localize(None)
     df = df[df["Datetime"] <= now_paris]
 
     df = df[~df.duplicated(subset=["Datetime"], keep='first')]
     
-    # Resample to 15-minute intervals and interpolate
+    # Ensure Datetime is parsed correctly and sorted
+    df.sort_values(["Région", "Datetime"], inplace=True)
+
+    # Set index before resampling
     df.set_index("Datetime", inplace=True)
-    cdata_resampled = (
-        df.groupby("Région", group_keys=False)
-        .resample("15min")
-        .mean()
-        .infer_objects(copy=False)
-    )
 
-    # Interpolate only numeric columns
-    numeric_cols = cdata_resampled.select_dtypes(include="number").columns
-    cdata_resampled[numeric_cols] = cdata_resampled[numeric_cols].interpolate(method="linear")
+    # List to hold each region’s resampled data
+    resampled_list = []
 
-    # Forward fill regions
-    cdata_resampled.reset_index(inplace=True)
-    cdata_resampled["Région"] = cdata_resampled["Région"].ffill()
+    # Process each region individually
+    for region, group in df.groupby("Région"):
+        # Ensure no duplicate datetime values
+        group = group[~group.index.duplicated(keep='first')]
 
-    return cdata_resampled
+        # Create full datetime range for the region
+        full_index = pd.date_range(
+            start=group.index.min(), 
+            end=group.index.max(), 
+            freq="15min"
+        )
 
+        # Reindex to enforce presence of every 15-min timestamp
+        group_resampled = group.reindex(full_index)
 
+        # Interpolate numeric columns
+        numeric_cols = group.select_dtypes(include="number").columns
+        group_resampled[numeric_cols] = group_resampled[numeric_cols].interpolate(method="linear")
 
+        # Forward-fill the region name
+        group_resampled["Région"] = region
 
+        # Append to list
+        resampled_list.append(group_resampled)
+
+    # Combine all resampled data
+    df_final = pd.concat(resampled_list).reset_index().rename(columns={"index": "Datetime"})
+
+    print(f"df_final looks like : {df_final.head()}")
+
+    return df_final

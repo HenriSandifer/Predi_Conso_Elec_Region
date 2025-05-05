@@ -2,6 +2,7 @@ import pandas as pd
 from src.dictionaries import region_abbr_dict
 from src.func_get_temperature_forecast import regional_temperature_prediction
 from src.utils_s3 import read_csv_from_s3, write_csv_to_s3
+from src.dictionaries import run_time_temp_column_map
 
 
 def run_temperature_forecast_update(run_time_pstr):
@@ -34,7 +35,8 @@ def run_temperature_forecast_update(run_time_pstr):
     df_existing["Datetime"] = pd.to_datetime(df_existing["Datetime"])
 
     # Step 3: Merge new data into column like temp_02, temp_08, etc.
-    run_time_column = f"temp_{run_time_pstr}"
+    col_name = run_time_temp_column_map.get(run_time_pstr)
+    run_time_column = col_name
 
     df_new_subset = df_new_forecast[["Datetime", "Région", "t"]].copy()
     df_new_subset = df_new_subset[df_new_subset["Datetime"] >= ow_line]

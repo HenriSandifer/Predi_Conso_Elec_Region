@@ -28,7 +28,7 @@ def plot_pred(region_abbr_caps, region_abbr_lwrc, target_month, chosen_day, run_
     ]
    
     if not prediction_files:
-        print("⚠️ No full-day prediction found for run time {run_time_hr}.")
+        print(f"⚠️ No full-day prediction found for run time {run_time_hr}.")
         return
 
     # Assuming one full-day prediction fil per run_time
@@ -37,6 +37,7 @@ def plot_pred(region_abbr_caps, region_abbr_lwrc, target_month, chosen_day, run_
     df_pred["Datetime"] = pd.to_datetime(df_pred["Datetime"])
 
     # Plot using Plotly
+    print(f"Creating plot for region {region_abbr_caps} for {chosen_day} at runtime {run_time_hr}")
     fig = px.line(
         df_pred,
         x="Datetime",

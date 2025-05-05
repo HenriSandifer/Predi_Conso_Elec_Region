@@ -2,6 +2,7 @@ import pandas as pd
 from func_get_cons_data import get_regional_consumption
 from utils_s3 import read_csv_from_s3, write_csv_to_s3
 from dictionaries import region_abbr_dict
+import argparse
 
 # Set AWS S3 path
 S3_FILENAME = "raw_data/real_cons_data.csv"
@@ -10,7 +11,7 @@ S3_FILENAME = "raw_data/real_cons_data.csv"
 try:
     df_existing = read_csv_from_s3(S3_FILENAME)
     print("📂 Loaded existing consumption data from S3.")
-    df_existing["Datetime"] = pd.to_datetime(df_existing["Datetime"])
+    df_existing["Datetime"] = pd.to_datetime(df_existing["Datetime"]).dt.tz_localize(None)
 except Exception as e:
     print(f"⚠️ Could not load existing data: {e}")
     df_existing = pd.DataFrame(columns=["Datetime", "Consommation (MW)", "Région"])
@@ -28,6 +29,7 @@ all_new_data = []
 for region in region_abbr_dict.keys():
     print(f"📥 Fetching consumption for {region}...")
     df_new = get_regional_consumption(region, last_dt)
+    df_new["Datetime"] = pd.to_datetime(df_new["Datetime"]).dt.tz_localize(None)
         
     if not df_new.empty:
         df_new = df_new[df_new["Datetime"] > last_dt]
