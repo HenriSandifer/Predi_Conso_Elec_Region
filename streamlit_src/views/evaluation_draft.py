@@ -3,6 +3,7 @@
 import streamlit as st
 import plotly.io as pio
 import plotly.graph_objects as go
+import json
 from datetime import date, timedelta
 from utils.io_s3 import read_json_from_s3
 
@@ -47,6 +48,7 @@ def render_evaluation_tab():
     plot_key = f"{run_time_eval_folder_key}/{plot_filename}"
 
     st.caption(f"Chargement du graphique depuis : '{plot_key}")
+
 
     data = read_json_from_s3(plot_key)
 
