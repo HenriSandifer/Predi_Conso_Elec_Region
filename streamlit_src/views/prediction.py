@@ -42,7 +42,7 @@ def render_prediction_tab():
 
     # === S3 PATH ===
     run_time_pred_folder_key = f"Predictions/{region_abbr}/{target_month}/{date_ymd}/{run_time_hr}/pred"
-    plot_filename = f"plot_full_pred_{region_abbr_lwrc}_{date_ymd}_{run_time_hr}.json"
+    plot_filename = f"plot_pred_full_{region_abbr_lwrc}_{date_ymd}_{run_time_hr}.json"
     plot_key = f"{run_time_pred_folder_key}/{plot_filename}"
 
     st.caption(f"Chargement du graphique depuis: '{plot_key}'")

@@ -2,6 +2,23 @@
 data/eco2mix-regional-cons-def.csv
 data/eco2mix-regional-tr.csv
 data/merged_full.csv
+data/2025_weather_data.csv
+data/cons_temp_2025.csv
+data/eco2mix-regional-tr_2025_reg_2.csv
+data/eco2mix-regional-tr_2025_reg.csv
+data/eco2mix-regional-tr-2025-03.csv
+data/eco2mix-regional-tr-2025-04.csv
+data/paca_full.csv
+data/reg_2025_cons_new.csv
+data/reg_2025_cons.csv
+data/reg_2025_temperature.csv
+data/2025_weather_data.csv
+data/cons_04-05.csv
+data/cons_04-08.csv
+data/reg_2025_cons_updated.csv
+data/reg_2025_cons.csv
+data/regional_temp_forecast.csv
+data/updated_weather_data.csv
 
 # === Ignore all notebooks ===
 notebooks/

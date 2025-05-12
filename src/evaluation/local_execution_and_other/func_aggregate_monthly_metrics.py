@@ -25,7 +25,7 @@ def aggregate_monthly_metrics(region_abbr_caps, target_month, region_abbr_lwrc):
             if not os.path.isdir(run_time_path):
                 continue
 
-            metrics_filename = f"evaluation_metrics_{region_abbr_lwrc}_{day_folder}_{run_time}.csv"
+            metrics_filename = f"metrics_individual_models_{region_abbr_lwrc}_{day_folder}_{run_time}.csv"
             metrics_path = os.path.join(run_time_path, metrics_filename)
 
             if not os.path.exists(metrics_path):

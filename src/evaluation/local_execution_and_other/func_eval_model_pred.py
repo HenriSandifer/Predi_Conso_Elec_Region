@@ -24,17 +24,17 @@ def evaluate_model_predictions(region, region_abbr_caps, region_abbr_lwrc, targe
     
     """
     
-    date_str = chosen_day.strftime("%Y-%m-%d")
-    run_time_pred_folder_key = f"Predictions/{region_abbr_caps}/{target_month}/{date_str}/{run_time_hr}/pred"
+    date_ymd = chosen_day.strftime("%Y-%m-%d")
+    run_time_pred_folder_key = f"Predictions/{region_abbr_caps}/{target_month}/{date_ymd}/{run_time_hr}/pred"
 
     # Define full-day evaluation file path and check if it exists
-    eval_filename_check = f"eval_full_{region_abbr_lwrc}_{date_str}_{run_time_hr}.csv"
-    run_time_eval_folder_key = f"Predictions/{region_abbr_caps}/{target_month}/{date_str}/{run_time_hr}/eval"
+    eval_filename_check = f"eval_full_{region_abbr_lwrc}_{date_ymd}_{run_time_hr}.csv"
+    run_time_eval_folder_key = f"Predictions/{region_abbr_caps}/{target_month}/{date_ymd}/{run_time_hr}/eval"
     eval_key_check = f"{run_time_eval_folder_key}/{eval_filename_check}"
 
     try:
         s3.head_object(Bucket=bucket_name, Key=eval_key_check)
-        print(f"✋ Evaluation file already exists for {region} on {date_str} at {run_time_hr}, skipping.")
+        print(f"✋ Evaluation file already exists for {region} on {date_ymd} at {run_time_hr}, skipping.")
         return  # Skip evaluation
     except s3.exceptions.ClientError as e:
         if e.response["Error"]["Code"] != "404":
@@ -110,14 +110,14 @@ def evaluate_model_predictions(region, region_abbr_caps, region_abbr_lwrc, targe
         })
 
         # Save the evaluation dataframe
-        eval_filename = f"eval_{region_abbr_lwrc}_{model_name}_{date_str}_{run_time_hr}.csv"
-        run_time_eval_folder_key = f"Predictions/{region_abbr_caps}/{target_month}/{date_str}/{run_time_hr}/eval"
+        eval_filename = f"eval_{region_abbr_lwrc}_{model_name}_{date_ymd}_{run_time_hr}.csv"
+        run_time_eval_folder_key = f"Predictions/{region_abbr_caps}/{target_month}/{date_ymd}/{run_time_hr}/eval"
         eval_key = f"{run_time_eval_folder_key}/{eval_filename}"
         write_csv_to_s3(df_eval, eval_key)
 
     # Save evaluation metrics summary
     metrics_df = pd.DataFrame(metrics)
-    metrics_key = f"{run_time_eval_folder_key}/metrics_individual_models_{region_abbr_lwrc}_{date_str}_{run_time_hr}.csv"
+    metrics_key = f"{run_time_eval_folder_key}/metrics_individual_models_{region_abbr_lwrc}_{date_ymd}_{run_time_hr}.csv"
     write_csv_to_s3(metrics_df, metrics_key)
 
     print(f"✅ Individual model metrics saved to: s3://{bucket_name}/{metrics_key}")
