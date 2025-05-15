@@ -4,7 +4,8 @@ import streamlit as st
 import plotly.io as pio
 import plotly.graph_objects as go
 from datetime import date, timedelta
-from utils.io_s3 import read_json_from_s3
+from utils.io_s3 import read_json_from_s3, read_csv_from_s3
+import pandas as pd
 
 def render_evaluation_tab():
         # === REGION SETUP ===
@@ -50,6 +51,26 @@ def render_evaluation_tab():
     st.caption(f"Chargement du graphique depuis : '{plot_key}")
 
     data = read_json_from_s3(plot_key)
+
+    # === Load R² from metrics CSV ===
+    metrics_filename = f"metrics_individual_models_{region_abbr_lwrc}_{date_ymd}_{run_time_hr}.csv"
+    metrics_key = f"{run_time_eval_folder_key}/{metrics_filename}"
+    metrics_df = read_csv_from_s3(metrics_key)
+
+    r2_score = None
+    if metrics_df is not None and not metrics_df.empty:
+        df = pd.DataFrame(metrics_df)
+        if "Model" in df.columns and "R2" in df.columns:
+            df_all_models = df[df["Model"] == "ALL_MODELS"]
+            if not df_all_models.empty:
+                r2_score = df_all_models.iloc[0]["R2"]
+
+    # === Display R² before chart ===
+    if r2_score is not None:
+        st.markdown(f"### R² : `{r2_score:.4f}`")
+    else:
+        st.warning("R² introuvable pour ALL_MODELS dans les métriques.")
+
 
     if not data:
         st.error("⚠️ Impossible de charger le fichier d'évaluation.")
