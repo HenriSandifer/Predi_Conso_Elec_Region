@@ -55,10 +55,10 @@ run_time_temp_column_map = {
 }
 
 temp_column_priority = {
-    "2": ["temp_02", "temp_20", "temp_14", "temp_08", "hist_t"],
-    "8": ["temp_08", "temp_02", "temp_20", "temp_14", "hist_t"],
-    "14": ["temp_14", "temp_08", "temp_02", "temp_20", "hist_t"],
-    "20": ["temp_20", "temp_14", "temp_08", "temp_02", "hist_t"]
+    "2": ["hist_t", "temp_02", "temp_20", "temp_14", "temp_08"],
+    "8": ["hist_t", "temp_08", "temp_02", "temp_20", "temp_14"],
+    "14": ["hist_t", "temp_14", "temp_08", "temp_02", "temp_20"],
+    "20": ["hist_t", "temp_20", "temp_14", "temp_08", "temp_02"]
 }
 
 

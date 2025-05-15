@@ -12,6 +12,7 @@ region_abbr_caps_dict = {
         "Île-de-France": "IDF",
         "Auvergne-Rhône-Alpes": "ARA",
         "Grand Est": "GRE",
+        "Normandie": "NOR",
         "Bretagne": "BRE",
         "Provence-Alpes-Côte d'Azur": "PAC",
         "Hauts-de-France": "HDF",
@@ -36,11 +37,30 @@ region_abbr_dict = {
     }
 
 run_time_dict = {
-        "02:00:00": 2,
-        "08:00:00": 8,
-        "14:00:00": 14,
-        "20:00:00": 20
+        "02:00:00": "2",
+        "08:00:00": "8",
+        "14:00:00": "14",
+        "20:00:00": "20"
     }
+
+run_time_temp_column_map = {
+        "02:00:00": "temp_02",
+        "08:00:00": "temp_08",
+        "14:00:00": "temp_14",
+        "20:00:00": "temp_20",
+        "2": "temp_02",
+        "8": "temp_08",
+        "14": "temp_14",
+        "20": "temp_20"
+}
+
+temp_column_priority = {
+    "2": ["temp_02", "temp_20", "temp_14", "temp_08", "hist_t"],
+    "8": ["temp_08", "temp_02", "temp_20", "temp_14", "hist_t"],
+    "14": ["temp_14", "temp_08", "temp_02", "temp_20", "hist_t"],
+    "20": ["temp_20", "temp_14", "temp_08", "temp_02", "hist_t"]
+}
+
 
 holiday_zones = {
     "Auvergne-Rhône-Alpes": "A",
@@ -169,6 +189,7 @@ weather_stations = {
     "Provence-Alpes-Côte d'Azur": [
         {"ID": "07591", "Nom": "EMBRUN"},
         {"ID": "07650", "Nom": "MARIGNANE"},
+        {"ID": "07661", "Nom": "CAP CEPET"},
         {"ID": "07690", "Nom": "NICE"}
     ],
     "Occitanie": [
@@ -193,7 +214,7 @@ weather_coordinates = {
         {"city": "Belfort", "latitude": 47.639674, "longitude": 6.863849},
         {"city": "Chalon-sur-Saône", "latitude": 46.782972, "longitude": 4.852051}
     ],
-    "Bretagne": [
+    "Brittany": [
         {"city": "Rennes", "latitude": 48.117266, "longitude": -1.677793},
         {"city": "Brest", "latitude": 48.390394, "longitude": -4.486076},
         {"city": "Quimper", "latitude": 47.996092, "longitude": -4.102201},
@@ -229,7 +250,7 @@ weather_coordinates = {
         {"city": "Saint-Denis", "latitude": 48.936181, "longitude": 2.357443},
         {"city": "Argenteuil", "latitude": 48.947209, "longitude": 2.246684}
     ],
-    "Normandie": [
+    "Normandy": [
         {"city": "Rouen", "latitude": 49.443232, "longitude": 1.099971},
         {"city": "Caen", "latitude": 49.182863, "longitude": -0.370679},
         {"city": "Le Havre", "latitude": 49.49437, "longitude": 0.107929},

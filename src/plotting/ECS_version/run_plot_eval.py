@@ -37,6 +37,6 @@ if __name__ == "__main__":
     chosen_day_ymd = infer_day()
     chosen_month_ym = infer_month()
     
-    print("⚙️ Starting evaluation job...")
+    print("⚙️ Starting evaluation plotting job...")
     for region in regions:
         run_plot_eval(region, chosen_day_ymd)

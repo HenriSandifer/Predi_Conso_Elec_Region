@@ -30,7 +30,7 @@ def run_pipeline_for_model(region, chosen_day, run_time_hr, model):
     )
 
     region_lwrc = inputs["region_abbr"]                        
-    date_str = inputs["chosen_day"].strftime("%m-%d")
+    date_ymd = inputs["chosen_day"].strftime("%Y-%m-%d")
     run_time_hr = str(inputs["run_time_abbr"])
     model = inputs["model"]
 
@@ -170,7 +170,7 @@ def run_pipeline_for_model(region, chosen_day, run_time_hr, model):
             print(f"🕳️ Found NaNs in {col}, checking next fallback...")
 
     if selected_temp_col is None:
-        raise ValueError(f"❌ All fallback temperature columns contain NaNs for {date_str}")
+        raise ValueError(f"❌ All fallback temperature columns contain NaNs for {date_ymd}")
     
     # Final dataframe
     df_t_pred = df_temp_day[["Datetime", selected_temp_col]].copy()
@@ -224,7 +224,7 @@ def run_pipeline_for_model(region, chosen_day, run_time_hr, model):
     df_test["Predicted_Consumption"] = xgb_model.predict(X_mixed_interactions_test_df)
 
     # Save results
-    filename = f"pred_cons_{region_lwrc}_{model}_{run_time_hr}_{date_str}_v{model_version}.csv"
+    filename = f"pred_cons_{region_lwrc}_{model}_{run_time_hr}_{date_ymd}_v{model_version}.csv"
     s3_key = f"{s3_folder_key}/{filename}"
     write_csv_to_s3(df_test, s3_key)
     print(f"✅ Added single model prediction for {region_lwrc} run_time {run_time_hr} on {chosen_day} to S3.")

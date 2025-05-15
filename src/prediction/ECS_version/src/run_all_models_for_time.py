@@ -28,7 +28,7 @@ def run_all_models_for_time(region, chosen_day, run_time_hms):
         run_pipeline_for_model(region, chosen_day, run_time_hms, model)
 
     ### Saving full day prediction of given run_time
-    date_str = pd.to_datetime(chosen_day).strftime("%Y-%m-%d")
+    date_ymd = pd.to_datetime(chosen_day).strftime("%Y-%m-%d")
     bucket_name = "predi-conso-elec-region"
     run_time_folder_key = create_prediction_output_key(
         region_abbr_caps,
@@ -63,7 +63,7 @@ def run_all_models_for_time(region, chosen_day, run_time_hms):
     df_pred_full = pd.concat(full_day_df).sort_values("Datetime")
 
     # Save df_pred_full to CSV for later evaluation and plotting
-    pred_filename = f"pred_full_{region_abbr_lwrc}_{date_str}_{run_time_hr}.csv"
+    pred_filename = f"pred_full_{region_abbr_lwrc}_{date_ymd}_{run_time_hr}.csv"
     pred_key = f"{run_time_folder_key}/{pred_filename}"
     write_csv_to_s3(df_pred_full, pred_key)
     print(f"✅ Added full-day prediction for {region_abbr_caps} run_time {run_time_hms} on {chosen_day} to S3.")
