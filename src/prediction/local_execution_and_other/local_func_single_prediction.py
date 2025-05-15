@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import os
 from datetime import timedelta
 from sklearn.preprocessing import PolynomialFeatures
 from dictionaries import (lag_roll_features_by_model,
@@ -17,8 +18,8 @@ from utils_preprocessing import (add_holiday_column,
 
 from utils_df_test_inputs import get_df_test_inputs
 
-S3_TEMP_FILENAME = "raw_data/temperature_forecast_data.csv"
-S3_CONS_FILENAME = "raw_data/real_cons_data.csv"
+TEMP_FILENAME = r"C:\Users\Henri\Documents\GitHub\Predi_Conso_Elec_Region\data\s3_downloaded_datasets\temperature_forecast_data.csv"
+CONS_FILENAME = r"C:\Users\Henri\Documents\GitHub\Predi_Conso_Elec_Region\data\s3_downloaded_datasets\real_cons_data.csv"
 
 def run_pipeline_for_model(region, chosen_day, run_time_hr, model):
     # Use your existing prep function
@@ -47,7 +48,7 @@ def run_pipeline_for_model(region, chosen_day, run_time_hr, model):
     # Evaluate and log metrics with MLflow
 
     # Defining df_cons
-    df_cons = read_csv_from_s3(S3_CONS_FILENAME)
+    df_cons = pd.read_csv(CONS_FILENAME)
     print(f"df_cons len right after CSV read is : {len(df_cons)}")
 
     # Normalize Région column
@@ -139,7 +140,7 @@ def run_pipeline_for_model(region, chosen_day, run_time_hr, model):
                     (inputs["chosen_day"] + timedelta(days=1)).day)]
 
     # Defining df_temp
-    df_temp = read_csv_from_s3(S3_TEMP_FILENAME)
+    df_temp = pd.read_csv(TEMP_FILENAME)
 
     # Normalize Région column
     df_temp["Région"] = df_temp["Région"].apply(lambda x: unicodedata.normalize("NFC", x))
@@ -223,20 +224,32 @@ def run_pipeline_for_model(region, chosen_day, run_time_hr, model):
         index=X_mixed_test.index
     )
 
-    mlflow.set_tracking_uri("s3://predi-conso-elec-region")
-    
+    # Local model discovery
     model_version = "1"
-    model_name = f"xgb_model_{region_lwrc}_{model.lower()}_v{model_version}"
-    model_s3_path = f"s3://predi-conso-elec-region/models/{model_name}"
-    
-    xgb_model = mlflow.xgboost.load_model(model_s3_path)
+    model_dir = f"models/xgb_model_{region_lwrc}_{model.lower()}_v{model_version}"
+    xgb_model = mlflow.xgboost.load_model(model_dir)
+
 
     ##### Running Prediction
     # Use the model to predict D+1 consumption
     df_test["Predicted_Consumption"] = xgb_model.predict(X_mixed_interactions_test_df)
 
     # Save results
+
+    local_base = r"C:\Users\Henri\Documents\GitHub\Predi_Conso_Elec_Region\Predictions_archive"
+    local_dir = os.path.join(
+        local_base,
+        inputs["region_caps"],
+        inputs["chosen_day"].strftime("%Y-%m"),
+        inputs["chosen_day"].strftime("%Y-%m-%d"),
+        str(inputs["run_time_abbr"]),
+        "pred"
+    )
+
+    os.makedirs(local_dir, exist_ok=True)
+
     filename = f"pred_cons_{region_lwrc}_{model}_{run_time_hr}_{date_ymd}_v{model_version}.csv"
-    s3_key = f"{s3_folder_key}/{filename}"
-    write_csv_to_s3(df_test, s3_key)
-    print(f"✅ Added single model prediction for {region_lwrc} run_time {run_time_hr} on {chosen_day} to S3.")
+    local_path = os.path.join(local_dir, filename)
+
+    df_test.to_csv(local_path, index=False)
+    print(f"✅ Saved local prediction to: {local_path}")

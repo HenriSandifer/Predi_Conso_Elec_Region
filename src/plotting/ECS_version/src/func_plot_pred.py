@@ -2,7 +2,7 @@ import pandas as pd
 import os
 import plotly.graph_objects as go
 import boto3
-from utils_s3 import read_csv_from_s3, write_plot_to_s3
+from utils_s3 import read_csv_from_s3, write_json_plot_to_s3
 
 # Constants
 BUCKET_NAME = "predi-conso-elec-region"
@@ -64,6 +64,6 @@ def plot_pred(region_abbr_caps, region_abbr_lwrc, target_month, chosen_day, run_
     plot_filename = f"plot_pred_full_{region_abbr_lwrc}_{date_ymd}_{run_time_hr}.json"
     plot_key = f"{run_time_pred_folder_key}/{plot_filename}"
     plot_json = fig.to_json()
-    write_plot_to_s3(plot_json, plot_key, content_type="application/json")
+    write_json_plot_to_s3(plot_json, plot_key, content_type="application/json")
 
     print(f"✅ Plot saved for run_time {run_time_hr} to s3://{BUCKET_NAME}/{plot_key}")

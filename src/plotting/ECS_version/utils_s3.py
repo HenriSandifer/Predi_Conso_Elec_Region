@@ -36,7 +36,7 @@ def write_csv_to_s3(df, key):
     except Exception as e:
         print(f"❌ Error writing to S3: s3://{S3_BUCKET}/{key}\n{e}")
 
-def write_plot_to_s3(plot_data, s3_key, content_type="application/json"):
+def write_json_plot_to_s3(plot_data, s3_key, content_type="application/json"):
     s3.put_object(
         Bucket=S3_BUCKET,
         Key=s3_key,

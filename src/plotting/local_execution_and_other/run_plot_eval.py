@@ -1,4 +1,13 @@
-from tracer_json_func_plot_eval import plot_eval
+"""
+THIS IS FOR A LOCAL RUN / NOT FOR AN S3 RUN
+CHANGE FILE BEING IMPORTED FOR S3 RUN
+-- in this case, import local_func_plot_eval
+-- instead of tracer_json_func_plot_pred
+
+"""
+
+
+from local_func_plot_eval import plot_eval
 from dictionaries import (
     region_abbr_caps_dict,
     region_abbr_dict
@@ -8,7 +17,7 @@ import pandas as pd
 import argparse
 
 
-def run_plot_eval(region, chosen_day):
+def run_plot_eval(region, chosen_day_ymd):
     """
     Plots the prediction made at any run time 
     against the target day's real data
@@ -18,8 +27,8 @@ def run_plot_eval(region, chosen_day):
     plot_eval(
         region_abbr_caps=region_abbr_caps_dict[region],
         region_abbr_lwrc=region_abbr_dict[region],
-        chosen_day=pd.to_datetime(chosen_day),    
-        target_month=pd.to_datetime(chosen_day).strftime("%Y-%m")    
+        chosen_day=pd.to_datetime(chosen_day_ymd),    
+        target_month=pd.to_datetime(chosen_day_ymd).strftime("%Y-%m")    
         )          
 
 if __name__ == "__main__":
