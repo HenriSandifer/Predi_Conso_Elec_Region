@@ -58,6 +58,7 @@ def render_prediction_tab():
     
     try:
         fig = pio.from_json(data)
+        
         st.plotly_chart(fig, use_container_width=True)
     except Exception as e:
         st.error(f"⚠️ Échec de l'affichage du graphique: {e}")

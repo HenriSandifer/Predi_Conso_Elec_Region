@@ -1,7 +1,7 @@
 import streamlit as st
 
 def render_about_tab():
-    st.title("À propos")
+    st.title("🌐 À propos")
 
     tabs = st.tabs(["🇫🇷 Français", "🇬🇧 English"])
 
@@ -23,7 +23,8 @@ Cette application affiche des prédictions de consommation électrique régional
 
 ### À propos de l’auteur
 Je suis biologiste de formation, spécialisé en microbiologie des sols. Je me suis formé à la data science pour mieux comprendre, modéliser et déployer des systèmes complexes. Ce projet a été réalisé dans le cadre de ma certification RNCP et pour enrichir mon portfolio professionnel.
-""")
+GitHub : https://github.com/HenriSandifer/Predi_Conso_Elec_Region
+                    """)
 
     with tabs[1]:  # English
         st.markdown("""
@@ -43,4 +44,5 @@ This app presents next-day electricity consumption forecasts for French regions.
 
 ### About the Author
 I’m a biologist with a specialization in soil microbiology. I transitioned into data science to explore, model, and deploy real-world systems. This project was developed for my RNCP certification and to showcase my full-stack data skills.
-""")
+GitHub : https://github.com/HenriSandifer/Predi_Conso_Elec_Region
+                    """)

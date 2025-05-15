@@ -39,7 +39,7 @@ def load_national_metrics():
     
 
 def render_analysis_tab():
-    st.title("Dashboard analytique: Métriques de Prédiction de Consommation Electrique")
+    st.title("🔬 Dashboard analytique: Métriques de Prédiction de Consommation Electrique")
 
     df_all = load_national_metrics()
     if df_all.empty:
@@ -76,7 +76,7 @@ def render_analysis_tab():
     st.markdown("### Informations")
     st.markdown("__*R2 :__ Coefficient de Détermination : plus le coefficient de détermination " \
     "est proche de 1, plus le modèle est en adéquation avec les données collectées et plus la" \
-    " régression linéaire est efficace pour prédire les résultats futurs ")
+    " régression est efficace pour prédire les résultats futurs ")
 
     # Filter UI should only appear on analysis tab
     st.markdown("---")

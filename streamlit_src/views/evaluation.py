@@ -84,3 +84,10 @@ def render_evaluation_tab():
 
     except Exception as e:
         st.error(f"⚠️ Échec de l'affichage du graphique : {e}")
+
+    # Other info
+    st.markdown("---")
+    st.markdown("### Informations")
+    st.markdown("__*R2 :__ Coefficient de Détermination : plus le coefficient de détermination " \
+    "est proche de 1, plus le modèle est en adéquation avec les données collectées et plus la" \
+    " régression est efficace pour prédire les résultats futurs ")
