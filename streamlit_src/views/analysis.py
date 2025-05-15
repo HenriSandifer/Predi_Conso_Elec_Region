@@ -71,6 +71,28 @@ def render_analysis_tab():
     fig_default.update_layout(xaxis_type="category", showlegend=False)
     st.plotly_chart(fig_default, use_container_width=True)
 
+    # Other info
+    st.markdown("---")
+    st.markdown("### Informations")
+    st.markdown("## *R2:" "### Coefficient de Détermination : plus le coefficient de détermination est proche de 1, plus le modèle est en adéquation avec les données collectées et plus la régression linéaire est efficace pour prédire les résultats futurs ")
+
+    with st.expander('## 📘 Légende des abbréviations des régions :')
+        st.markdown("""
+        | Abbréviation | Région                     |
+        |--------------|----------------------------|
+        | ARA          | Auvergne-Rhône-Alpes       |
+        | BFC          | Bourgogne-Franche-Comté    |
+        | BRE          | Bretagne                   |
+        | CVL          | Centre-Val de Loire        |
+        | GRE          | Grand Est                  |
+        | HDF          | Hauts-de-France            |
+        | IDF          | Île-de-France              |
+        | NAQ          | Nouvelle-Aquitaine         |
+        | OCC          | Occitanie                  |
+        | PAC          | Provence-Alpes-Côte d'Azur |
+        | PAL          | Pays de la Loire           |
+        """)
+
     # Filter UI should only appear on analysis tab
     st.markdown("---")
     st.markdown("### Filtres")

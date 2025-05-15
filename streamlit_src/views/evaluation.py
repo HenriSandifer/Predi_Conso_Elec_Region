@@ -40,7 +40,7 @@ def render_evaluation_tab():
     default_run_time = max(available_run_times)
     run_time_hr = st.selectbox("Sélectionner l'heure de prédiction", available_run_times, index=available_run_times.index(default_run_time), key="eval_run_time_select")
 
-    st.title(f"📊 Évaluation de la Prédiction du {fr_date_dmy} à {run_time_hr}h")
+    st.title(f"📊 Évaluation de la Prédiction (J-1) de Consommation Electrique du {fr_date_dmy}")
 
     # === S3 PATH ===
     run_time_eval_folder_key = f"Predictions/{region_abbr}/{target_month}/{date_ymd}/{run_time_hr}/eval"
