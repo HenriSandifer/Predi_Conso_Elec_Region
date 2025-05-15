@@ -34,12 +34,13 @@ def render_evaluation_tab():
     target_month = selected_date.strftime("%Y-%m")
     
     fr_date_dmy = selected_date.strftime("%d-%m-%Y")
-    st.title(f"📊 Évaluation de la Prédiction du {fr_date_dmy}")
 
     # === RUN TIME ===
     available_run_times = [2, 8, 14, 20]
     default_run_time = max(available_run_times)
     run_time_hr = st.selectbox("Sélectionner l'heure de prédiction", available_run_times, index=available_run_times.index(default_run_time), key="eval_run_time_select")
+
+    st.title(f"📊 Évaluation de la Prédiction du {fr_date_dmy} à {run_time_hr}h")
 
     # === S3 PATH ===
     run_time_eval_folder_key = f"Predictions/{region_abbr}/{target_month}/{date_ymd}/{run_time_hr}/eval"
@@ -56,10 +57,9 @@ def render_evaluation_tab():
     
     try:
         fig = pio.from_json(data)
+        if len(fig.data) == 2 and fig.data[0].name == "Real Consumption":
+            fig.data = (fig.data[1], fig.data[0])
         st.plotly_chart(fig, use_container_width=True)
-
-        # Optional future enhancement
-        st.markdown("ℹ️ À venir : affichage des métriques d'évaluation (RMSE, R², MAE)")
 
     except Exception as e:
         st.error(f"⚠️ Échec de l'affichage du graphique : {e}")

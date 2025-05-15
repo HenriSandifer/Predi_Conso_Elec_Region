@@ -3,12 +3,13 @@
 import streamlit as st
 import pandas as pd
 import plotly.io as pio
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime, timezone
 from utils.io_s3 import read_json_from_s3
 
 def render_prediction_tab():
     target_day = date.today() + timedelta(days=1)
     fr_date_dmy = target_day.strftime("%d-%m-%Y")
+    
 
     st.title(f"🔮 Prédiction de Consommation Electrique du {fr_date_dmy}")
 
@@ -33,7 +34,9 @@ def render_prediction_tab():
     
     # === RUN TIME SELECTION ===
     available_run_times = [2, 8, 14, 20]
-    default_run_time = max(available_run_times)
+    now = datetime.now(timezone.utc) + timedelta(hours=2)
+    current_hour = now.hour
+    default_run_time = max([rt for rt in available_run_times if rt <= current_hour], default=2)
     run_time_hr = st.selectbox("Sélectionner l'heure de prédiction", available_run_times, index=available_run_times.index(default_run_time))
 
     # === DATE SETUP ===
