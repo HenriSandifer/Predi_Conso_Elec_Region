@@ -74,9 +74,17 @@ def render_analysis_tab():
     # Other info
     st.markdown("---")
     st.markdown("### Informations")
-    st.markdown("## *R2 :" "### Coefficient de Détermination : plus le coefficient de détermination est proche de 1, plus le modèle est en adéquation avec les données collectées et plus la régression linéaire est efficace pour prédire les résultats futurs ")
+    st.markdown("__*R2 :__ Coefficient de Détermination : plus le coefficient de détermination " \
+    "est proche de 1, plus le modèle est en adéquation avec les données collectées et plus la" \
+    " régression linéaire est efficace pour prédire les résultats futurs ")
 
-    with st.expander("## 📘 Légende des abbréviations des régions :"):
+    # Filter UI should only appear on analysis tab
+    st.markdown("---")
+    st.markdown("### Filtres")
+    st.markdown("Graphique intéractif en bas de page")
+
+    all_Région = sorted(df_all["Régions"].unique())
+    with st.expander("# 📘 Légende des abbréviations des régions :"):
         st.markdown("""
         | Abbréviation | Région                     |
         |--------------|----------------------------|
@@ -93,11 +101,6 @@ def render_analysis_tab():
         | PAL          | Pays de la Loire           |
         """)
 
-    # Filter UI should only appear on analysis tab
-    st.markdown("---")
-    st.markdown("### Filtres")
-
-    all_Région = sorted(df_all["Régions"].unique())
     all_mois = sorted(df_all["Mois"].unique())
     all_models = sorted(df_all["Modèles"].unique())
     all_runtimes = sorted(df_all["Heures d'exécution"].unique())
