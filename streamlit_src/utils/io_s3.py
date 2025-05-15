@@ -1,8 +1,9 @@
-# streamlit_src/io/io_s3.py
+# streamlit_src/utils/io_s3.py
 
 import os
 import boto3
 import json
+import pandas as pd
 
 S3_BUCKET = os.getenv("MY_PROJECT_BUCKET", "predi-conso-elec-region")
 s3 = boto3.client("s3")
@@ -23,3 +24,16 @@ def list_s3_objects(prefix):
     except Exception as e:
         print(f"❌ Error listing S3 objects under s3://{S3_BUCKET}/{prefix}:\n{e}")
         return []
+
+def read_csv_from_s3(key):
+    """
+    Reads a CSV file from the S3 bucket using the specified key (path in bucket)
+    
+    """
+
+    try:
+        response = s3.get_object(Bucket=S3_BUCKET, Key=key)
+        return pd.read_csv(response["Body"])
+    except Exception as e:
+        print(f"❌ Error reading from S3: s3://{S3_BUCKET}/{key}\n{e}")
+        return None
