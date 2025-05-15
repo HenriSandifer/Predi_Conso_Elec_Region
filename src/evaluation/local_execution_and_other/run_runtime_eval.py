@@ -1,5 +1,13 @@
-from func_eval_model_pred import evaluate_model_predictions
-from func_eval_full_day_pred import evaluate_full_day_prediction
+"""
+THIS IS FOR A LOCAL RUN / NOT FOR AN S3 RUN
+CHANGE FILE BEING IMPORTED FOR S3 RUN
+-- in this case, import func_eval_model_pred
+-- instead of local_func_eval_model_pred
+
+"""
+
+from local_func_eval_model_pred import evaluate_model_predictions
+from local_func_eval_full_day_pred import evaluate_full_day_prediction
 from dictionaries import (
     region_abbr_caps_dict,
     region_abbr_dict,
@@ -46,7 +54,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Evaluate model predictions for a given region, day, and run_time.")
     parser.add_argument("--region", type=str, required=True, help="Region name (e.g., 'Auvergne-Rhône-Alpes')")
     parser.add_argument("--day", type=str, required=True, help="Target day (e.g., '2025-04-10')")
-    parser.add_argument("--time", type=str, required=True, help="Run time (e.g., '2')")
+    parser.add_argument("--time", type=str, required=True, help="Run time (e.g., '02:00:00')")
 
     args = parser.parse_args()
 

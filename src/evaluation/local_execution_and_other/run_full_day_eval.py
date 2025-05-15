@@ -1,5 +1,14 @@
-from func_eval_model_pred import evaluate_model_predictions
-from func_eval_full_day_pred import evaluate_full_day_prediction
+"""
+THIS IS FOR A LOCAL RUN / NOT FOR AN S3 RUN
+CHANGE FILE BEING IMPORTED FOR S3 RUN
+-- in this case, import func_eval_model_pred
+-- instead of local_func_eval_model_pred
+
+"""
+
+
+from local_func_eval_model_pred import evaluate_model_predictions
+from src.evaluation.local_execution_and_other.local_func_eval_full_day_pred import evaluate_full_day_prediction
 from dictionaries import (
     region_abbr_caps_dict,
     region_abbr_dict)
