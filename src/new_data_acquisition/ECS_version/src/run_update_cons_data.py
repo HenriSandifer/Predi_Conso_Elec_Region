@@ -1,0 +1,72 @@
+import pandas as pd
+from datetime import datetime, timezone, timedelta
+from src.func_get_cons_data import get_regional_consumption
+from src.utils_s3 import read_csv_from_s3, write_csv_to_s3, append_csv_to_s3
+from src.dictionaries import region_abbr_dict
+
+def run_consumption_update(run_time_pstr=None, max_retries=0):
+
+    LOG_KEY = "logs/new-data-acquisition/failure_logs.csv"
+    failures = []
+
+    now_paris = datetime.now(timezone.utc) + timedelta(hours=2)
+
+    # Set AWS S3 path
+    S3_FILENAME = "raw_data/real_cons_data.csv"
+
+    # Step 1: Load existing data
+    try:
+        df_existing = read_csv_from_s3(S3_FILENAME)
+        df_existing["Datetime"] = pd.to_datetime(df_existing["Datetime"]).dt.tz_localize(None)
+        print("📂 Loaded existing consumption data from S3.")
+    except Exception as e:
+        print(f"⚠️ Could not load existing data: {e}")
+        df_existing = pd.DataFrame(columns=["Datetime", "Consommation (MW)", "Région"])
+
+    # Step 2: Determine the last datetime in the dataset
+    if not df_existing.empty:
+        last_dt = df_existing["Datetime"].max()
+    else:
+        last_dt = pd.to_datetime("2025-01-01")  # Fallback start date
+
+    print(f"🔍 Fetching new data from after: {last_dt}")
+
+    # Step 3: Fetch new data from API
+    all_new_data = []
+    for region in region_abbr_dict.keys():
+        print(f"📥 Fetching consumption for {region}...")
+        df_new = get_regional_consumption(region, last_dt)
+
+        df_new["Datetime"] = pd.to_datetime(df_new["Datetime"]).dt.tz_localize(None)
+        
+        if not df_new.empty:
+            df_new = df_new[df_new["Datetime"] > last_dt]
+            if not df_new.empty:
+                all_new_data.append(df_new)
+
+        else:
+            log_entry = {
+                "timestamp": now_paris.strftime("%Y-%m-%d %H:%M:%S"),
+                "run_time": run_time_pstr or "unknown",
+                "region": region,
+                "failed_attempts": max_retries
+            }
+            failures.append(log_entry)
+
+    if failures:
+        df_log = pd.DataFrame(failures)
+        append_csv_to_s3(df_log, LOG_KEY)
+
+    # Step 4: Combine and append
+    if all_new_data:
+        df_new_combined = pd.concat(all_new_data).reset_index(drop=True)
+        df_updated = pd.concat([df_existing, df_new_combined]).drop_duplicates(subset=["Datetime", "Région"])
+        df_updated.sort_values(["Datetime", "Région"], inplace=True)
+        print(f"🆕 Appended {len(df_new_combined)} new rows.")
+    else:
+        print("✅ No new data found.")
+        df_updated = df_existing
+
+    # Step 5: Upload back to S3
+    write_csv_to_s3(df_updated, S3_FILENAME)
+    print("✅ Updated consumption data saved to S3.")
