@@ -76,7 +76,7 @@ def render_analysis_tab():
     st.markdown("### Informations")
     st.markdown("## *R2 :" "### Coefficient de Détermination : plus le coefficient de détermination est proche de 1, plus le modèle est en adéquation avec les données collectées et plus la régression linéaire est efficace pour prédire les résultats futurs ")
 
-    with st.expander("## 📘 Légende des abbréviations des régions :")
+    with st.expander("## 📘 Légende des abbréviations des régions :"):
         st.markdown("""
         | Abbréviation | Région                     |
         |--------------|----------------------------|
