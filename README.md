@@ -15,17 +15,17 @@ App website : https://predi-elec.onrender.com/
 - <span style="font-size: 20px;">**Daily predictions** using multiple machine learning models.</span>
 &nbsp;
 
-![Dashboard Screenshot](assets/prediction.jpg)
+![Dashboard Screenshot](assets/prediction.JPG)
 
 - <span style="font-size: 20px;">**Historical archives** of both real consumption and model predictions.</span></br>
 &nbsp;
 
-![Dashboard Screenshot](assets/evaluation.jpg)
+![Dashboard Screenshot](assets/evaluation.JPG)
 
 - <span style="font-size: 20px;">**Automated model evaluation and visualizations** accessible via a clean web interface.</span></br>
 &nbsp;
 
-![Dashboard Screenshot](assets/analytics.jpg)
+![Dashboard Screenshot](assets/analytics.JPG)
 
 - A completely automated backend pipeline, deployed and managed in the cloud.
 
