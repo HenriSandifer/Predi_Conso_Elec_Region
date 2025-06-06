@@ -26,7 +26,7 @@ def infer_month():
 def run_monthly_aggregation(region, region_abbr_caps, chosen_month_ym, region_abbr_lwrc):
     try:
         print(f"📅 Running monthly aggregation job for region {region} for month  {chosen_month_ym}...")
-        aggregate_monthly_metrics(region_abbr_caps, chosen_day_ymd, region_abbr_lwrc)
+        aggregate_monthly_metrics(region_abbr_caps, chosen_month_ym, region_abbr_lwrc)
         print("✅ Monthly aggregation successful.")
         return
     except Exception as e:

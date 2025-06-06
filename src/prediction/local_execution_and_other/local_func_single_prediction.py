@@ -4,13 +4,10 @@ import os
 from datetime import timedelta
 from sklearn.preprocessing import PolynomialFeatures
 from dictionaries import (lag_roll_features_by_model,
-                          run_time_temp_column_map,
                           temp_column_priority)
 import mlflow
 import unicodedata
-
-
-from utils_s3 import read_csv_from_s3, write_csv_to_s3
+from pathlib import Path
 
 from utils_preprocessing import (add_holiday_column,
                    apply_lag_roll_features,
@@ -18,8 +15,7 @@ from utils_preprocessing import (add_holiday_column,
 
 from utils_df_test_inputs import get_df_test_inputs
 
-TEMP_FILENAME = r"C:\Users\Henri\Documents\GitHub\Predi_Conso_Elec_Region\data\s3_downloaded_datasets\temperature_forecast_data.csv"
-CONS_FILENAME = r"C:\Users\Henri\Documents\GitHub\Predi_Conso_Elec_Region\data\s3_downloaded_datasets\real_cons_data.csv"
+data_dir = Path(__file__).resolve().parents[2] / "data"
 
 def run_pipeline_for_model(region, chosen_day, run_time_hr, model):
     # Use your existing prep function
@@ -48,7 +44,7 @@ def run_pipeline_for_model(region, chosen_day, run_time_hr, model):
     # Evaluate and log metrics with MLflow
 
     # Defining df_cons
-    df_cons = pd.read_csv(CONS_FILENAME)
+    df_cons = pd.read_csv(data_dir / "real_cons_data.csv")
     print(f"df_cons len right after CSV read is : {len(df_cons)}")
 
     # Normalize Région column
@@ -140,7 +136,7 @@ def run_pipeline_for_model(region, chosen_day, run_time_hr, model):
                     (inputs["chosen_day"] + timedelta(days=1)).day)]
 
     # Defining df_temp
-    df_temp = pd.read_csv(TEMP_FILENAME)
+    df_temp = pd.read_csv(data_dir / "temperature_forecast_data.csv")
 
     # Normalize Région column
     df_temp["Région"] = df_temp["Région"].apply(lambda x: unicodedata.normalize("NFC", x))
@@ -236,20 +232,21 @@ def run_pipeline_for_model(region, chosen_day, run_time_hr, model):
 
     # Save results
 
-    local_base = r"C:\Users\Henri\Documents\GitHub\Predi_Conso_Elec_Region\Predictions_archive"
-    local_dir = os.path.join(
-        local_base,
-        inputs["region_caps"],
-        inputs["chosen_day"].strftime("%Y-%m"),
-        inputs["chosen_day"].strftime("%Y-%m-%d"),
-        str(inputs["run_time_abbr"]),
+    predictions_dir = Path(__file__).resolve().parents[2] / "Predictions_archive"
+    predictions_dir.mkdir(parents=True, exist_ok=True)
+    
+    local_path = (
+        predictions_dir /
+        inputs["region_caps"] /
+        inputs["chosen_day"].strftime("%Y-%m") /
+        inputs["chosen_day"].strftime("%Y-%m-%d") /
+        str(inputs["run_time_abbr"]) /
         "pred"
     )
-
-    os.makedirs(local_dir, exist_ok=True)
+    local_path.mkdir(parents=True, exist_ok=True)
 
     filename = f"pred_cons_{region_lwrc}_{model}_{run_time_hr}_{date_ymd}_v{model_version}.csv"
-    local_path = os.path.join(local_dir, filename)
+    output_file = local_path / filename
 
-    df_test.to_csv(local_path, index=False)
-    print(f"✅ Saved local prediction to: {local_path}")
+    df_test.to_csv(output_file, index=False)
+    print(f"✅ Saved local prediction to: {output_file}")

@@ -18,7 +18,7 @@ def aggregate_national_metrics(chosen_month_ym):
     for page in paginator.paginate(Bucket=bucket_name, Prefix=prefix):
         for obj in page.get("Contents", []):
             key = obj["Key"]
-            if key.endswith(f"metrics_master_{chosen_month_ym}.csv") and "/eval/" not in key:
+            if key.endswith(".csv") and "metrics_master" in key:
                 region = key.split("/")[1]
                 try:
                     obj_data = s3.get_object(Bucket=bucket_name, Key=key)

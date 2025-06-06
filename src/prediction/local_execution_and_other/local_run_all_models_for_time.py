@@ -1,7 +1,8 @@
-import os
 import pandas as pd
 import argparse
 from local_func_single_prediction import run_pipeline_for_model
+from pathlib import Path
+
 from dictionaries import (
     models_by_run_time,
     region_abbr_caps_dict,
@@ -9,6 +10,7 @@ from dictionaries import (
     region_abbr_dict,
 )
 
+local_base = Path(__file__).resolve().parents[2] / "Predictions_archive"
 
 def run_all_models_for_time(region, chosen_day, run_time_hms):
     """
@@ -29,24 +31,13 @@ def run_all_models_for_time(region, chosen_day, run_time_hms):
 
     # Build path to where model predictions were saved locally
     date_str = pd.to_datetime(chosen_day).strftime("%Y-%m-%d")
-    local_base = r"C:\Users\Henri\Documents\GitHub\Predi_Conso_Elec_Region\Predictions_archive"
-    run_time_path = os.path.join(
-        local_base,
-        region_abbr_caps,
-        target_month,
-        date_str,
-        str(run_time_hr),
-        "pred"
-    )
+    run_time_path = local_base / region_abbr_caps / target_month / date_str / str(run_time_hr) / "pred"
 
-    if not os.path.exists(run_time_path):
+    if not run_time_path.exists():
         print(f"❌ Folder not found: {run_time_path}")
         return
 
-    pred_files = [
-        f for f in os.listdir(run_time_path)
-        if f.startswith("pred_cons_") and f.endswith(".csv")
-    ]
+    pred_files = list(run_time_path.glob("pred_cons_*.csv"))
 
     if not pred_files:
         print(f"⚠️ No pred_cons CSVs found in {run_time_path}")
@@ -54,7 +45,7 @@ def run_all_models_for_time(region, chosen_day, run_time_hms):
 
     full_day_df = []
     for fname in pred_files:
-        fpath = os.path.join(run_time_path, fname)
+        fpath = run_time_path / fname
         df = pd.read_csv(fpath)
         df.rename(columns={"Predicted_Consumption": "y_pred"}, inplace=True)
         full_day_df.append(df)
@@ -62,7 +53,7 @@ def run_all_models_for_time(region, chosen_day, run_time_hms):
     df_pred_full = pd.concat(full_day_df).sort_values("Datetime")
 
     pred_filename = f"pred_full_{region_abbr_lwrc}_{date_str}_{run_time_hr}.csv"
-    local_path = os.path.join(run_time_path, pred_filename)
+    local_path = run_time_path / pred_filename
 
     df_pred_full.to_csv(local_path, index=False)
     print(f"✅ Saved full-day prediction to: {local_path}")

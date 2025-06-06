@@ -1,4 +1,3 @@
-import os
 import pandas as pd
 import unicodedata
 from sklearn.metrics import (
@@ -6,12 +5,14 @@ from sklearn.metrics import (
     mean_absolute_error,
     r2_score
 )
-from dictionaries import run_time_dict
+from pathlib import Path
+
+
 from utils_pred_eval_inputs import get_pred_eval_inputs
 
 # Local paths
-REAL_CONS_PATH = r"C:\Users\Henri\Documents\GitHub\Predi_Conso_Elec_Region\data\s3_downloaded_datasets\real_cons_data.csv"
-LOCAL_BASE_DIR = r"C:\Users\Henri\Documents\GitHub\Predi_Conso_Elec_Region\Predictions_archive"
+REAL_CONS_PATH = Path(__file__).resolve().parents[2] / "data" / "real_cons_data.csv"
+LOCAL_BASE_DIR = Path(__file__).resolve().parents[2] / "Predictions_archive"
 
 def evaluate_model_predictions(region, region_abbr_caps, region_abbr_lwrc, target_month, chosen_day, run_time_hr):
     """
@@ -22,28 +23,20 @@ def evaluate_model_predictions(region, region_abbr_caps, region_abbr_lwrc, targe
     date_ymd = chosen_day.strftime("%Y-%m-%d")
 
     # 🔧 Construct local path automatically
-    run_time_path = os.path.join(
-        LOCAL_BASE_DIR,
-        region_abbr_caps,
-        target_month,
-        date_ymd,
-        str(run_time_hr)
-    )
+    run_time_path = LOCAL_BASE_DIR / region_abbr_caps / target_month / date_ymd / str(run_time_hr)
 
     # Set folder paths
-    pred_folder = os.path.join(run_time_path, "pred")
-    eval_folder = os.path.join(run_time_path, "eval")
-    os.makedirs(eval_folder, exist_ok=True)
+    pred_folder = run_time_path / "pred"
+    eval_folder = run_time_path / "eval"
+    eval_folder.mkdir(parents=True, exist_ok=True)
 
-    if not os.path.exists(pred_folder):
+
+    if not pred_folder.exists():
         print(f"⚠️ No pred folder found at: {pred_folder}")
         return
 
     # Only consider individual model predictions
-    pred_files = [
-        f for f in os.listdir(pred_folder)
-        if f.startswith("pred_cons_") and f.endswith(".csv")
-    ]
+    pred_files = list(pred_folder.glob("pred_cons_*.csv"))
 
     if not pred_files:
         print(f"⚠️ No individual prediction files found in {pred_folder}")
@@ -66,7 +59,7 @@ def evaluate_model_predictions(region, region_abbr_caps, region_abbr_lwrc, targe
             print(f"⚠️ Could not parse model name from filename: {filename}")
             continue
 
-        pred_path = os.path.join(pred_folder, filename)
+        pred_path = pred_folder / filename
         df_pred = pd.read_csv(pred_path)
         df_pred["Datetime"] = pd.to_datetime(df_pred["Datetime"])
         df_pred.rename(columns={"Predicted_Consumption": "y_pred"}, inplace=True)
@@ -102,13 +95,13 @@ def evaluate_model_predictions(region, region_abbr_caps, region_abbr_lwrc, targe
 
         # Save evaluation file
         eval_filename = f"eval_{region_abbr_lwrc}_{model_name}_{date_ymd}_{run_time_hr}.csv"
-        eval_path = os.path.join(eval_folder, eval_filename)
+        eval_path = eval_folder / eval_filename
         df_eval.to_csv(eval_path, index=False)
         print(f"✅ Evaluation saved: {eval_path}")
 
     if metrics:
         metrics_df = pd.DataFrame(metrics)
         metrics_filename = f"metrics_individual_models_{region_abbr_lwrc}_{date_ymd}_{run_time_hr}.csv"
-        metrics_path = os.path.join(eval_folder, metrics_filename)
+        metrics_path = eval_folder / metrics_filename
         metrics_df.to_csv(metrics_path, index=False)
         print(f"📊 Metrics summary saved: {metrics_path}")

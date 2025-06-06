@@ -1,4 +1,3 @@
-import os
 import pandas as pd
 import unicodedata
 from sklearn.metrics import (
@@ -7,9 +6,12 @@ from sklearn.metrics import (
     r2_score
 )
 
+from pathlib import Path
+
 # Define static local paths
-REAL_CONS_PATH = r"C:\Users\Henri\Documents\GitHub\Predi_Conso_Elec_Region\data\s3_downloaded_datasets\real_cons_data.csv"
-LOCAL_BASE_DIR = r"C:\Users\Henri\Documents\GitHub\Predi_Conso_Elec_Region\Predictions_archive"
+REAL_CONS_PATH = Path(__file__).resolve().parents[2] / "data" / "real_cons_data.csv"
+LOCAL_BASE_DIR = Path(__file__).resolve().parents[2] / "Predictions_archive"
+
 
 def evaluate_full_day_prediction(region, region_abbr_caps, region_abbr_lwrc, target_month, chosen_day, run_time_hr):
     """
@@ -20,18 +22,12 @@ def evaluate_full_day_prediction(region, region_abbr_caps, region_abbr_lwrc, tar
     date_str = chosen_day.strftime("%Y-%m-%d")
 
     # 🔧 Construct run_time_path internally
-    run_time_path = os.path.join(
-        LOCAL_BASE_DIR,
-        region_abbr_caps,
-        target_month,
-        date_str,
-        str(run_time_hr)
-    )
+    run_time_path = LOCAL_BASE_DIR / region_abbr_caps / target_month / date_str / str(run_time_hr)
 
     pred_filename = f"pred_full_{region_abbr_lwrc}_{date_str}_{run_time_hr}.csv"
-    pred_path = os.path.join(run_time_path, "pred", pred_filename)
+    pred_path = run_time_path / "pred" / pred_filename
 
-    if not os.path.exists(pred_path):
+    if not pred_path.exists():
         print(f"⚠️ Full-day prediction file not found: {pred_path}")
         return
 
@@ -71,20 +67,20 @@ def evaluate_full_day_prediction(region, region_abbr_caps, region_abbr_lwrc, tar
     }]
 
     # Save evaluation CSV
-    eval_folder = os.path.join(run_time_path, "eval")
-    os.makedirs(eval_folder, exist_ok=True)
+    eval_folder = run_time_path / "eval"
+    eval_folder.mkdir(parents=True, exist_ok=True)
 
     eval_filename = f"eval_full_{region_abbr_lwrc}_{date_str}_{run_time_hr}.csv"
-    eval_path = os.path.join(eval_folder, eval_filename)
+    eval_path = eval_folder / eval_filename
     df_eval.to_csv(eval_path, index=False)
     print(f"✅ Full-day evaluation saved: {eval_path}")
 
     # Append metrics to the existing metrics file
     metrics_df = pd.DataFrame(metrics)
     metrics_filename = f"metrics_individual_models_{region_abbr_lwrc}_{date_str}_{run_time_hr}.csv"
-    metrics_path = os.path.join(eval_folder, metrics_filename)
+    metrics_path = eval_folder / metrics_filename
 
-    if os.path.exists(metrics_path):
+    if metrics_path.exists():
         try:
             existing_df = pd.read_csv(metrics_path)
             combined_df = pd.concat([existing_df, metrics_df], ignore_index=True)
