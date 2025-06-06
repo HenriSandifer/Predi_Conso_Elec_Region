@@ -7,7 +7,7 @@ CHANGE FILE BEING IMPORTED FOR S3 RUN
 """
 
 import argparse
-from local_func_aggregate_national_metrics import aggregate_national_metrics
+from func_aggregate_national_metrics import aggregate_national_metrics
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

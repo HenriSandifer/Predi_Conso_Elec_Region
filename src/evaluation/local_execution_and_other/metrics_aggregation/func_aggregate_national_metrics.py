@@ -14,7 +14,7 @@ def aggregate_national_metrics(bucket_name="predi-conso-elec-region", target_mon
     for page in paginator.paginate(Bucket=bucket_name, Prefix=prefix):
         for obj in page.get("Contents", []):
             key = obj["Key"]
-            if key.endswith(f"metrics_master_{target_month}.csv"):
+            if key.endswith(".csv") and "metrics_master" in key:
                 region = key.split("/")[1]
                 obj_data = s3.get_object(Bucket=bucket_name, Key=key)
                 df = pd.read_csv(io.BytesIO(obj_data["Body"].read()))

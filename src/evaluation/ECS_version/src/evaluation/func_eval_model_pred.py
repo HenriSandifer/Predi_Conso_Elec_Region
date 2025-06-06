@@ -6,7 +6,6 @@ from sklearn.metrics import (
     r2_score
 )
 
-from src.utils.dictionaries import run_time_dict
 from src.utils.utils_s3 import read_csv_from_s3, write_csv_to_s3
 from src.utils.utils_pred_eval_inputs import get_pred_eval_inputs
 

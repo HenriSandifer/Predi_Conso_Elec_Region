@@ -1,13 +1,13 @@
 """
 THIS IS FOR A LOCAL RUN / NOT FOR AN S3 RUN
 CHANGE FILE BEING IMPORTED FOR S3 RUN
--- in this case, import local_func_plot_eval
--- instead of tracer_json_func_plot_pred
+-- in this case, import tracer_json_func_plot_eval
+-- instead of local_tracer_json_func_plot_pred
 
 """
 
 
-from local_func_plot_eval import plot_eval
+from local_tracer_json_func_plot_eval import plot_eval
 from dictionaries import (
     region_abbr_caps_dict,
     region_abbr_dict

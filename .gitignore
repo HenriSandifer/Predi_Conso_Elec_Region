@@ -1,5 +1,5 @@
 # === Ignore large datasets ===
-data/
+local_data/
 
 # === Ignore all notebooks ===
 notebooks/
@@ -9,7 +9,7 @@ OLD/
 
 Pipelines/
 
-Predictions_archive/
+local_Predictions_archive/
 
 venv/
 
