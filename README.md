@@ -13,14 +13,17 @@ App website : https://predi-elec.onrender.com/
 **Predi Conso Elec Region** is a full-stack, end-to-end data science project designed to forecast electricity consumption for all regions in France on a daily basis (D+1). It provides:
 
 - <span style="font-size: 20px;">**Daily predictions** using multiple machine learning models.</span>
+&nbsp;
 
 ![Dashboard Screenshot](assets/prediction.jpg)
 
 - <span style="font-size: 20px;">**Historical archives** of both real consumption and model predictions.</span></br>
+&nbsp;
 
 ![Dashboard Screenshot](assets/evaluation.jpg)
 
 - <span style="font-size: 20px;">**Automated model evaluation and visualizations** accessible via a clean web interface.</span></br>
+&nbsp;
 
 ![Dashboard Screenshot](assets/analytics.jpg)
 
