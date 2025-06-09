@@ -1,5 +1,7 @@
 # ⚡ Predi Conso Elec Region
 
+[🇫🇷 Lire en français](README.fr.md)
+
 **A predictive web application for French regional electricity consumption**  
 
 Author: [henrisandifer](https://github.com/henrisandifer)
