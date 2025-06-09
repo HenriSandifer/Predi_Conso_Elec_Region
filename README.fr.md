@@ -54,7 +54,7 @@ Ce projet illustre ma capacité à concevoir et industrialiser des systèmes de 
 - 📁 **Archivage historique** des prévisions et évaluations (année 2025)
 - 📉 **Tableau de bord interactif Streamlit** avec visualisations en temps réel
 
-### 🛠 Pile technologique & architecture
+### 🛠 Stack technique & architecture
 - **Python**, **XGBoost**, **Scikit-learn**, **MLFlow** (modélisation & versionnage)
 - **Docker**, **AWS ECS**, **S3**, **EventBridge** (déploiement & automatisation)
 - **Pathlib**, structure de jobs modulaires, gestion dynamique des fichiers
@@ -106,7 +106,7 @@ root/
 
 Pour exécuter ou tester le projet localement :
 
-1. Cloner le dépôt :
+1. Cloner le repo :
    ```bash
    git clone https://github.com/henrisandifer/predi-conso-elec-region.git
    cd predi-conso-elec-region
@@ -188,7 +188,7 @@ Le tableau de bord interactif permet :
 
 ## 🙋 À propos de moi
 
-Je m’appelle Henri Sandifer, ancien biologiste spécialisé en **microbiologie des sols et champignons mycorhiziens**, aujourd’hui reconverti dans la **data science et l’ingénierie logicielle**. J’ai également travaillé dans le secteur **des énergies renouvelables** et je suis passionné par la création d’applications concrètes intégrant **modélisation prédictive, automatisation**, et **déploiement cloud**.
+Je m’appelle Henri Sandifer, ancien biologiste spécialisé en **microbiologie des sols et champignons mycorhiziens**, aujourd’hui reconverti dans la **data science et le développement logicielle**. J’ai également travaillé dans le secteur **des énergies renouvelables** et je suis passionné par la création d’applications intégrant **modélisation prédictive, automatisation**, et **déploiement cloud**.
 
 Langues parlées : **anglais, français, italien (courant)** ; **japonais, espagnol, arabe, allemand (intermédiaire)**.
 
