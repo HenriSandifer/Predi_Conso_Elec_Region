@@ -91,6 +91,29 @@ root/
 └── README.md
 ```
 
+## 🧰 Diagrammes d'Architecture de chaque Job (+ Automatisation Cloud)
+
+- <span style="font-size: 20px;">Architecture du job **"New Data Acquisition"**</span>
+&nbsp;
+
+![New Data Acquisition Diagram](assets/new_data_acquisition_job.png)
+
+- <span style="font-size: 20px;">Architecture du job **"Prediction"**</span>
+&nbsp;
+
+![Prediction Job Diagram](assets/prediction_job.png)
+
+- <span style="font-size: 20px;">Architecture du job **"Evaluation"**</span>
+&nbsp;
+
+![Evaluation Job Diagram](assets/evaluation_job.png)
+
+- <span style="font-size: 20px;">Architecture du job **"Plotting"**</span>
+&nbsp;
+
+![Plotting Job Diagram](assets/plotting_job.png)
+
+
 ## 🧪 Conception des Modèles
 
 - **5 modèles de régression XGBoost** par région, entraînés et versionnés avec **MLflow**. Des combinaisons de modèles sont utilisées selon le créneau horaire (00h, 02h, 08h, 14h).
