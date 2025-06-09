@@ -72,7 +72,7 @@ This project demonstrates my ability to build and deploy real-world machine lear
 
 ---
 
-## 📐 Architecture
+## 📐 Codebase Architecture
 
 ```bash
 root/
@@ -94,6 +94,29 @@ root/
 ├── streamlit_src/              # Streamlit app
 └── README.md
 ```
+
+## 🧰 Job-specific Architecture Diagrams (+ Cloud Automation)
+
+- <span style="font-size: 20px;">**"New Data Acquisition"** job architecture</span>
+&nbsp;
+
+![New Data Acquisition Diagram](assets/new_data_acquisition_job.png)
+
+- <span style="font-size: 20px;">**"Prediction"** job architecture</span>
+&nbsp;
+
+![Prediction Job Diagram](assets/prediction_job.png)
+
+- <span style="font-size: 20px;">**"Evaluation"** job architecture</span>
+&nbsp;
+
+![Evaluation Job Diagram](assets/evaluation_job.png)
+
+- <span style="font-size: 20px;">**"Plotting"** job architecture</span>
+&nbsp;
+
+![Plotting Job Diagram](assets/plotting_job.png)
+
 
 ## 🧪 Model Design
 
