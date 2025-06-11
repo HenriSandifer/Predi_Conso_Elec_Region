@@ -51,12 +51,12 @@ This project simulates a real-world data science workflow for forecasting electr
 This project demonstrates my ability to build and deploy real-world machine learning systems with modern tools and best practices.
 
 ### 🔧 Core Features
-- ⚡ **D+1 electricity consumption forecasting** for all French regions
-- 📈 **Multiple XGBoost models**, each tailored to specific data availability windows
-- 🔄 **Daily ingestion** of temperature and consumption data from public APIs
-- 📊 **Automated evaluation** of model performance
-- 📁 **Historical archive** of predictions and evaluations (2025)
-- 📉 **Interactive Streamlit dashboard** with live forecasts and analytics
+- **D+1 electricity consumption forecasting** for all French regions
+- **Multiple XGBoost models**, each tailored to specific data availability windows
+- **Daily ingestion** of temperature and consumption data from public APIs
+- **Automated evaluation** of model performance
+- **Historical archive** of predictions and evaluations (2025)
+- **Interactive Streamlit dashboard** with live forecasts and analytics
 
 ### 🛠 Technical Stack & Workflow
 - **Python**, **XGBoost**, **Scikit-learn**, **MLFlow** (modeling & versioning)
