@@ -47,12 +47,12 @@ Ce projet reproduit un workflow réel de data science appliqué à la prévision
 Ce projet illustre ma capacité à concevoir et industrialiser des systèmes de machine learning en production avec des outils modernes.
 
 ### 🔧 Fonctionnalités principales
-- ⚡ **Prévision D+1** de la consommation électrique régionale
-- 📈 **Plusieurs modèles XGBoost**, adaptés aux différentes fenêtres de disponibilité des données
-- 🔄 **Ingestion quotidienne** des données météo et de consommation via des APIs publiques
-- 📊 **Évaluation automatisée** de la performance des modèles
-- 📁 **Archivage historique** des prévisions et évaluations (année 2025)
-- 📉 **Tableau de bord interactif Streamlit** avec visualisations en temps réel
+- **Prévision D+1** de la consommation électrique régionale
+- **Plusieurs modèles XGBoost**, adaptés aux différentes fenêtres de disponibilité des données
+- **Ingestion quotidienne** des données météo et de consommation via des APIs publiques
+- **Évaluation automatisée** de la performance des modèles
+- **Archivage historique** des prévisions et évaluations (année 2025)
+- **Tableau de bord interactif Streamlit** avec visualisations en temps réel
 
 ### 🛠 Stack technique & architecture
 - **Python**, **XGBoost**, **Scikit-learn**, **MLFlow** (modélisation & versionnage)
